@@ -5,19 +5,19 @@ import streamlit as st
 def style_background_home():
     st.markdown("""
         <style>
-                .stApp {
-                    background: #5865F2 !important;
-                    height: 100vh !important;
-                    overflow-y: auto !important;
-                }
-                .stApp div[data-testid="stColumn"]{
-                    background-color:#E0E3FF !important;
-                    padding:2.5rem !important;
-                    border-radius: 5rem !important;
-                }
-        </style>  
+            .stApp {
+                background: #5865F2 !important;
+                height: 100vh !important;
+                overflow: hidden !important; /* Scroll bar gayab karne ke liye */
+            }
+            .stApp div[data-testid="stColumn"]{
+                background-color:#E0E3FF !important;
+                padding: 1rem 2rem !important; /* Padding kam kar di */
+                border-radius: 3rem !important; /* Border radius thoda kam kiya fit hone ke liye */
+                text-align: center;
+            }
+        </style>
         """, unsafe_allow_html=True)
-    
 
 def style_background_dashboard():
     st.markdown("""
@@ -37,22 +37,29 @@ def style_base_layout():
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Climate+Crisis:YEAR@1979&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+        
 
                 
          /* Hide Top Bar of streamlit */
                 
-            #MainMenu, footer, header {
+            header, footer, #MainMenu {
                 visibility: hidden;
+                height: 0;
             }
                 
             .block-container {
-                padding-top:1.5rem !important;    
+                padding-top: 0rem !important;
+                padding-bottom: 0rem !important;
+                height: 100vh !important;
+                display: flex;
+                flex-direction: column;
+                justify-content: center; /* Content ko center mein rakhega */
             }
 
             h1 {
                 font-family: 'Climate Crisis', sans-serif !important;
                 font-size: 3.5rem !important;
-                line-height:1.1 1important;
+                line-height:1.1 !important;
                 margin-bottom:0rem !important;
             }
                 
