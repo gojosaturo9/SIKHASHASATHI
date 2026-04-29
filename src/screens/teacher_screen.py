@@ -65,13 +65,13 @@ def teacher_screen_login():
                 box-shadow: 0 0 5px rgba(235, 69, 158, 0.5) !important;
             }
             
-            /* 👇 NAYA FIX 1: Placeholder wapas laane ke liye 👇 */
+            /*  Placeholder wapas laane ke liye */
             .stTextInput input::placeholder {
                 color: #A0AAB2 !important; /* Halka grey color */
                 opacity: 1 !important; /* Ensure visibility */
             }
 
-            /* 👇 NAYA FIX 2: "Press Enter to apply" gayab karne ke liye 👇 */
+            /*  "Press Enter to apply" gayab karne ke liye */
             div[data-testid="InputInstructions"] {
                 display: none !important;
             }
@@ -170,13 +170,13 @@ def teacher_screen_register():
                 box-shadow: 0 0 5px rgba(235, 69, 158, 0.5) !important;
             }
             
-            /* 👇 NAYA FIX 1: Placeholder wapas laane ke liye 👇 */
+            /*  NAYA FIX 1: Placeholder wapas laane ke liye */
             .stTextInput input::placeholder {
                 color: #A0AAB2 !important; /* Halka grey color */
                 opacity: 1 !important; /* Ensure visibility */
             }
 
-            /* 👇 NAYA FIX 2: "Press Enter to apply" gayab karne ke liye 👇 */
+            /* NAYA FIX 2: "Press Enter to apply" gayab karne ke liye */
             div[data-testid="InputInstructions"] {
                 display: none !important;
             }
