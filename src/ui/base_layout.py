@@ -22,14 +22,18 @@ def style_background_home():
 def style_background_dashboard():
     st.markdown("""
         <style>
-                .stApp {
-                    background: #E0E3FF !important;
-                    height: 100vh !important;
-                    overflow-y: auto !important;
-                }
-        </style>  
-        """, unsafe_allow_html=True)
-    
+            
+            .stApp, [data-testid="stAppViewContainer"] {
+                background-color:#E0E3FF !important;
+            }
+            
+            
+            .stApp {
+                overflow: auto !important; 
+                height: auto !important;
+            }
+        </style>
+    """, unsafe_allow_html=True)
 
 def style_base_layout():
 # asdasd
