@@ -58,7 +58,7 @@ def get_trained_model():
     if len(X) ==0:
         return 0
     
-    clf = SVC(kernel='linear', probability=True, class_weight='balanced')
+    clf = SVC(kernel='linear', probability=True, class_weight='balanced' , C=10)
 
     try:
         clf.fit(X, y)
@@ -105,7 +105,7 @@ def predict_attendance(class_image_np):
 
         best_match_score = np.linalg.norm(student_embedding - encoding)
 
-        resemblance_threshold = 0.6
+        resemblance_threshold = 0.45
 
         if best_match_score <= resemblance_threshold:
             detected_student[predicted_id] = True
