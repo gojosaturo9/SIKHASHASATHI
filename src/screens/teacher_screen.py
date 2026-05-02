@@ -242,51 +242,137 @@ def teacher_tab_attendance_records():
     st.header('Attendance Records')
 
     teacher_id = st.session_state.teacher_data['teacher_id']
-
     records = get_attendance_for_teacher(teacher_id)
 
     if not records:
+        st.info("No attendance records found.")
         return
-    
-    data = []
 
+    # --- Data Prepare ---
+    data = []
     for r in records:
         ts = r.get('timestamp')
-
         data.append({
             "ts_group": ts.split(".")[0] if ts else None,
-            "Time": datetime.fromisoformat(ts).strftime("%Y-%m-%d %I:%M %p") if ts else "N'A",
+            "Date": datetime.fromisoformat(ts).strftime("%Y-%m-%d") if ts else "N/A",
+            "Time": datetime.fromisoformat(ts).strftime("%I:%M %p") if ts else "N/A",
             "Subject": r['subjects']['name'],
-            "Subject Code":r['subjects']['subject_code'],
-            "is_present": bool(r.get('is_present', False))
+            "Subject Code": r['subjects']['subject_code'],
+            "subject_id": r['subjects']['subject_id'],
+            "Student Name": r['students']['name'],
+            "student_id": r['students']['student_id'],
+            "is_present": bool(r.get('is_present', False)),
+            "Status": "✅ Present" if r.get('is_present') else "❌ Absent"
         })
-
 
     df = pd.DataFrame(data)
 
+    # --- Subject Filter ---
+    subjects = df['Subject'].unique().tolist()
+    selected_subject = st.selectbox("📚 Select Subject", ["All Subjects"] + subjects)
 
+    if selected_subject != "All Subjects":
+        df = df[df['Subject'] == selected_subject]
+
+    # --- Session History ---
+    st.subheader("📋 Session History")
 
     summary = (
-        df.groupby(['ts_group', 'Time', 'Subject', 'Subject Code'])
+        df.groupby(['ts_group', 'Date', 'Time', 'Subject', 'Subject Code'])
         .agg(
-            Present_Count = ('is_present', 'sum'),
-            Total_Count =('is_present', 'count')
+            Present=('is_present', 'sum'),
+            Total=('is_present', 'count')
         ).reset_index()
+    )
+    summary['Attendance %'] = ((summary['Present'] / summary['Total']) * 100).round(1).astype(str) + "%"
+    summary['Stats'] = "✅ " + summary['Present'].astype(str) + " / " + summary['Total'].astype(str)
+    summary = summary.sort_values('ts_group', ascending=False).reset_index(drop=True)
 
+    # Summary Table
+    st.dataframe(
+        summary[['Date', 'Time', 'Subject', 'Subject Code', 'Stats', 'Attendance %']],
+        hide_index=True,
+        use_container_width=True
     )
 
-    summary['Attendance Stats'] = (
-        "✅ " + summary['Present_Count'].astype(str) + " /"
-        + summary['Total_Count'].astype(str) + ' Students'
-    )
+    st.write("")
 
-    display_df = ( summary.sort_values(by='ts_group' ,ascending=False)
-                  [['Time', 'Subject', 'Subject Code', 'Attendance Stats']]
-                  )
+    # --- Session Detail ---
+    st.subheader("🔍 Session Detail")
+    st.caption("Kisi bhi session ko select karo details dekhne ke liye")
+
+    session_options = (summary['Date'] + " | " + summary['Time'] + " | " + summary['Subject']).tolist()
+    selected_session_label = st.selectbox("Session Select karo", ["-- Select a Session --"] + session_options)
+
+    if selected_session_label != "-- Select a Session --":
+        idx = session_options.index(selected_session_label)
+        selected_ts = summary.iloc[idx]['ts_group']
+        selected_subj = summary.iloc[idx]['Subject']
+
+        session_df = df[(df['ts_group'] == selected_ts) & (df['Subject'] == selected_subj)]
+
+        st.divider()
+
+        # Metrics
+        m1, m2, m3 = st.columns(3)
+        present_count = int(session_df['is_present'].sum())
+        total_count = len(session_df)
+        absent_count = total_count - present_count
+        percent = round((present_count / total_count) * 100, 1) if total_count else 0
+
+        m1.metric("Total Students", total_count)
+        m2.metric("✅ Present", present_count)
+        m3.metric("❌ Absent", absent_count)
+
+        st.metric("Attendance %", f"{percent}%")
+
+        st.write("")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.markdown("### ✅ Present Students")
+            present_df = session_df[session_df['is_present'] == True][['Student Name']]
+            if present_df.empty:
+                st.info("Koi present nahi")
+            else:
+                st.dataframe(present_df, hide_index=True, use_container_width=True)
+
+        with col2:
+            st.markdown("### ❌ Absent Students")
+            absent_df = session_df[session_df['is_present'] == False][['Student Name']]
+            if absent_df.empty:
+                st.success("Sab present hain! 🎉")
+            else:
+                st.dataframe(absent_df, hide_index=True, use_container_width=True)
+
+    # --- Overall Student Attendance Summary ---
+    st.divider()
+    st.subheader("📊 Student-wise Overall Attendance")
+
+    student_summary = (
+        df.groupby(['student_id', 'Student Name', 'Subject'])
+        .agg(
+            Total_Classes=('is_present', 'count'),
+            Present_Days=('is_present', 'sum')
+        ).reset_index()
+    )
+    student_summary['Absent Days'] = student_summary['Total_Classes'] - student_summary['Present_Days']
+    student_summary['Attendance %'] = (
+        (student_summary['Present_Days'] / student_summary['Total_Classes']) * 100
+    ).round(1).astype(str) + "%"
+
+    student_summary['⚠️'] = (
+        student_summary['Present_Days'] / student_summary['Total_Classes'] * 100 < 75
+    ).map({True: "⚠️ Low", False: "✅ Good"})
+
+    st.dataframe(
+        student_summary[['Student Name', 'Subject', 'Total_Classes', 'Present_Days', 'Absent Days', 'Attendance %', '⚠️']],
+        hide_index=True,
+        use_container_width=True
+    )
     
-    st.dataframe(display_df, width='stretch', hide_index=True)
-
-
+    
 
 def login_teacher(username, password):
     if not username or not password:

@@ -1,19 +1,17 @@
 import streamlit as st
 
-
-
 def style_background_home():
     st.markdown("""
         <style>
             .stApp {
                 background: #5865F2 !important;
-                height: 100vh !important;
-                overflow: hidden !important; /* Scroll bar gayab karne ke liye */
+                min-height: 100vh !important; /* height ko min-height kiya */
+                overflow-y: auto !important; /* hidden ko auto kiya taaki scroll ho sake */
             }
             .stApp div[data-testid="stColumn"]{
                 background-color:#E0E3FF !important;
-                padding: 1rem 2rem !important; /* Padding kam kar di */
-                border-radius: 3rem !important; /* Border radius thoda kam kiya fit hone ke liye */
+                padding: 1rem 2rem !important; 
+                border-radius: 3rem !important; 
                 text-align: center;
             }
         </style>
@@ -22,42 +20,35 @@ def style_background_home():
 def style_background_dashboard():
     st.markdown("""
         <style>
-            
             .stApp, [data-testid="stAppViewContainer"] {
                 background-color:#E0E3FF !important;
             }
-            
-            
             .stApp {
-                overflow: auto !important; 
+                overflow-y: auto !important; 
                 height: auto !important;
             }
         </style>
     """, unsafe_allow_html=True)
 
 def style_base_layout():
-# asdasd
     st.markdown("""
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Climate+Crisis:YEAR@1979&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
         
-
-                
          /* Hide Top Bar of streamlit */
-                
             header, footer, #MainMenu {
                 visibility: hidden;
                 height: 0;
             }
                 
             .block-container {
-                padding-top: 0rem !important;
-                padding-bottom: 0rem !important;
-                height: 100vh !important;
+                padding-top: 2rem !important; /* Thoda top padding add kiya taaki content upar na dabe */
+                padding-bottom: 5rem !important; /* Scroll karne ke baad niche jagah mile */
+                min-height: 100vh !important; /* YAHAN MAIN FIX HAI */
                 display: flex;
                 flex-direction: column;
-                justify-content: center; /* Content ko center mein rakhega */
+                justify-content: flex-start; /* YAHAN MAIN FIX HAI: center ki jagah flex-start lagaya */
             }
 
             h1 {
@@ -66,7 +57,6 @@ def style_base_layout():
                 line-height:1.1 !important;
                 margin-bottom:0rem !important;
             }
-                
 
             h2 {
                 font-family: 'Climate Crisis', sans-serif !important;
@@ -78,7 +68,6 @@ def style_base_layout():
             h3, h4, p {
                 font-family: 'Outfit', sans-serif;    
             }
-                
 
             button{
                 border-radius: 1.5rem !important;
@@ -108,8 +97,8 @@ def style_base_layout():
                 }
 
             button:hover{
-                transform :scale(1.05)}
+                transform :scale(1.05)
+            }
         </style>  
-
-                """
-            ,unsafe_allow_html=True)
+        """
+    ,unsafe_allow_html=True)
