@@ -60,3 +60,39 @@ def notify_students_bg(attendance_results, subject_name, date_str):
         args=(attendance_results, subject_name, date_str),
     )
     thread.start()  # App ko bina roke background me start kar dega
+
+
+def send_verification_mail(teacher_email, teacher_name, is_approved):
+    # 1. Subject aur Body ko yahan naye siray se design karein
+    subject = "Account Verification Update - Smart Attendance"
+    status = "APPROVED ✅" if is_approved else "REJECTED ❌"
+
+    body = f"""
+    Hello {teacher_name},
+
+    Your teacher profile for the Smart AI Attendance System has been {status}.
+    """
+    if is_approved:
+        body += (
+            "\nYou can now log in to your dashboard and start managing your classes."
+        )
+    else:
+        body += "\nUnfortunately, your verification was not successful. Please contact the administrator."
+
+    # 2. Email setup (Independent logic)
+    msg = MIMEMultipart()
+    msg["From"] = SENDER_EMAIL
+    msg["To"] = teacher_email
+    msg["Subject"] = subject
+    msg.attach(MIMEText(body, "plain"))
+
+    # 3. SMTP Logic (Yahan hum send_single_email call NAHI karenge)
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        server.send_message(msg)
+        server.quit()
+        print(f"Verification mail sent to {teacher_name} successfully!")
+    except Exception as e:
+        print(f"Failed to send verification mail: {e}")

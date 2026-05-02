@@ -5,11 +5,10 @@ from src.components.footer import footer_dashboard
 from src.components.subject_card import subject_card
 from src.components.dialog_share_subject import share_subject_dialog
 from src.database.db import (
-    check_teacher_exists,
-    create_teacher,
-    teacher_login,
+    register_teacher,
     get_teacher_subjects,
     get_attendance_for_teacher,
+    check_pass,
 )
 from src.components.dialog_create_subject import create_subject_dialog
 from src.components.dialog_add_photo import add_photos_dialog
@@ -449,21 +448,6 @@ def teacher_tab_attendance_records():
     )
 
 
-def login_teacher(username, password):
-    if not username or not password:
-        return False
-
-    teacher = teacher_login(username, password)
-
-    if teacher:
-        st.session_state.user_role = "teacher"
-        st.session_state.teacher_data = teacher
-        st.session_state.is_logged_in = True
-        return True
-
-    return False
-
-
 def teacher_screen_login():
     st.markdown(
         """
@@ -553,42 +537,54 @@ def teacher_screen_login():
             shortcut="control+enter",
             width="stretch",
         ):
-            if login_teacher(teacher_username, teacher_pass):
-                st.toast("welcome back!", icon="👋")
-                import time
 
-                time.sleep(1)
-                st.rerun()
+            response = (
+                supabase.table("teachers")
+                .select("*")
+                .eq("username", teacher_username)
+                .execute()
+            )
+
+            if response.data:
+                teacher_data = response.data[0]
+
+                # Step 1: Pehle password check karein
+                if check_pass(teacher_pass, teacher_data["password"]):
+
+                    # Step 2: Password sahi hai, ab check karein Admin ne verify kiya hai ya nahi
+                    if teacher_data.get("is_verified") == True:
+                        # Verified! Login kara dein
+                        st.session_state["is_logged_in"] = True
+                        st.session_state["user_role"] = "teacher"
+                        st.session_state["teacher_data"] = teacher_data
+
+                        st.toast("Welcome back!", icon="👋")
+                        import time
+
+                        time.sleep(1)
+                        st.rerun()
+                    else:
+                        # Password sahi hai, par Admin verification baaki hai
+                        st.warning(
+                            "⚠️ Your account is pending Admin approval. Please wait for verification."
+                        )
+                else:
+                    st.error("Invalid password!")
             else:
-                st.error("Invalid username and password combo")
+                st.error("Username not found!")
 
     with btnc2:
         if st.button(
             "Register Instead",
             type="primary",
-            icon=":material/passkey:",
+            icon=":material/app_registration:",
             width="stretch",
         ):
             st.session_state.teacher_login_type = "register"
+            st.rerun()
+    # 👆 YAHAN TAK 👆
 
     footer_dashboard()
-
-
-def register_teacher(
-    teacher_username, teacher_name, teacher_pass, teacher_pass_confirm
-):
-    if not teacher_username or not teacher_name or not teacher_pass:
-        return False, "All Fields are required!"
-    if check_teacher_exists(teacher_username):
-        return False, "Username already taken"
-    if teacher_pass != teacher_pass_confirm:
-        return False, "Password doesn't match"
-
-    try:
-        create_teacher(teacher_username, teacher_pass, teacher_name)
-        return True, "Sucessfully Created! Login Now"
-    except Exception as e:
-        return False, "Unexpected Error!"
 
 
 def teacher_screen_register():
@@ -618,8 +614,8 @@ def teacher_screen_register():
             
             /*  NAYA FIX 1: Placeholder wapas laane ke liye */
             .stTextInput input::placeholder {
-                color: #A0AAB2 !important; /* Halka grey color */
-                opacity: 1 !important; /* Ensure visibility */
+                color: #A0AAB2 !important; 
+                opacity: 1 !important; 
             }
 
             /* NAYA FIX 2: "Press Enter to apply" gayab karne ke liye */
@@ -663,6 +659,11 @@ def teacher_screen_register():
 
     teacher_name = st.text_input("Enter name", placeholder="Enter your name here")
 
+    # 👇 NAYA FIELD: Email ID ke liye
+    teacher_email = st.text_input(
+        "Enter Email ID", placeholder="Enter your valid email id"
+    )
+
     teacher_pass = st.text_input(
         "Enter password", type="password", placeholder="Enter password"
     )
@@ -682,8 +683,13 @@ def teacher_screen_register():
             shortcut="control+enter",
             width="stretch",
         ):
+
             success, message = register_teacher(
-                teacher_username, teacher_name, teacher_pass, teacher_pass_confirm
+                teacher_username,
+                teacher_name,
+                teacher_email,
+                teacher_pass,
+                teacher_pass_confirm,
             )
             if success:
                 st.success(message)
