@@ -42,9 +42,21 @@ def create_student(new_name, face_embedding=None, voice_embedding=None):
     return response.data
 
 
-def create_student(new_name, face_embedding=None, voice_embedding=None):
-    data = {'name': new_name, 'face_embedding':face_embedding, "voice_embedding": voice_embedding}
-    response = supabase.table('students').insert(data).execute()
+def create_student(name, email_id, enrollment_no, branch, semester, section, face_embedding=None, voice_embedding=None):
+    
+
+    new_student_data = {
+        "name": name,
+        "email_id": email_id,         
+        "enrollment_no": enrollment_no,
+        "branch": branch,
+        "semester": semester,        
+        "section": section,
+        "face_embedding": face_embedding,
+        "voice_embedding": voice_embedding
+    }
+
+    response = supabase.table('students').insert(new_student_data).execute()
     return response.data
 
 
