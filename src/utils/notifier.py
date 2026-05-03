@@ -1,12 +1,15 @@
-import streamlit as st
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import threading
+import os
+import streamlit as st
 
 # ⚠️ Yahan apni project ki nayi Gmail ID aur "App Password" daalein
 SENDER_EMAIL = st.secrets["SENDER_EMAIL"]
 SENDER_PASSWORD = st.secrets["SENDER_PASSWORD"]
+
+# --- STUDENT ATTENDANCE EMAILS (Purana code, same rahega) ---
 
 
 def send_single_email(student_email, student_name, subject_name, is_present, date):
@@ -39,7 +42,6 @@ def send_single_email(student_email, student_name, subject_name, is_present, dat
         print(f"Failed to send email to {student_email}: {e}")
 
 
-# Yeh function background me chalega
 def _process_emails_in_background(attendance_results, subject_name, date_str):
     for log in attendance_results:
         email = log.get("email_id")
@@ -53,7 +55,6 @@ def _process_emails_in_background(attendance_results, subject_name, date_str):
             )
 
 
-# Hum is function ko baahar se call karenge
 def notify_students_bg(attendance_results, subject_name, date_str):
     thread = threading.Thread(
         target=_process_emails_in_background,
@@ -62,37 +63,55 @@ def notify_students_bg(attendance_results, subject_name, date_str):
     thread.start()  # App ko bina roke background me start kar dega
 
 
-def send_verification_mail(teacher_email, teacher_name, is_approved):
-    # 1. Subject aur Body ko yahan naye siray se design karein
-    subject = "Account Verification Update - Smart Attendance"
-    status = "APPROVED ✅" if is_approved else "REJECTED ❌"
+# --- 🚀 NAYA FIX: TEACHER CREDENTIALS EMAIL (Purana verification function hata diya) ---
 
-    body = f"""
-    Hello {teacher_name},
 
-    Your teacher profile for the Smart AI Attendance System has been {status}.
-    """
-    if is_approved:
-        body += (
-            "\nYou can now log in to your dashboard and start managing your classes."
-        )
-    else:
-        body += "\nUnfortunately, your verification was not successful. Please contact the administrator."
-
-    # 2. Email setup (Independent logic)
+def send_teacher_credentials_email(target_email, teacher_name, username, password):
     msg = MIMEMultipart()
     msg["From"] = SENDER_EMAIL
-    msg["To"] = teacher_email
-    msg["Subject"] = subject
-    msg.attach(MIMEText(body, "plain"))
+    msg["To"] = target_email
+    msg["Subject"] = "🔐 Welcome to Sageathon - Your Teacher Account Details"
 
-    # 3. SMTP Logic (Yahan hum send_single_email call NAHI karenge)
-    try:
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.starttls()
-        server.login(SENDER_EMAIL, SENDER_PASSWORD)
-        server.send_message(msg)
-        server.quit()
-        print(f"Verification mail sent to {teacher_name} successfully!")
-    except Exception as e:
-        print(f"Failed to send verification mail: {e}")
+    html_content = f"""
+    <html>
+        <body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+            <div style="max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 10px; overflow: hidden;">
+                <div style="background-color: #5865F2; padding: 20px; text-align: center; color: white;">
+                    <h2>Welcome to Sageathon! 🎉</h2>
+                </div>
+                <div style="padding: 20px;">
+                    <p>Dear <b>{teacher_name}</b>,</p>
+                    <p>Your Teacher account has been successfully created by the Administrator.</p>
+                    <p>Here are your secure login credentials:</p>
+                    
+                    <div style="background-color: #f4f4f9; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #5865F2;">
+                        <p style="margin: 5px 0;"><b>👤 Username:</b> {username}</p>
+                        <p style="margin: 5px 0;"><b>🔑 Password:</b> {password}</p>
+                    </div>
+                    
+                    <p><i>Note: For your security, please log in and change this auto-generated password from your dashboard as soon as possible.</i></p>
+                    
+                    <br>
+                    <p>Best Regards,</p>
+                    <p><b>The Sageathon Admin Team</b></p>
+                </div>
+            </div>
+        </body>
+    </html>
+    """
+
+    msg.attach(MIMEText(html_content, "html"))
+
+    def send_email_thread():
+        try:
+            server = smtplib.SMTP("smtp.gmail.com", 587)
+            server.starttls()
+            server.login(SENDER_EMAIL, SENDER_PASSWORD)
+            server.send_message(msg)
+            server.quit()
+            print(f"Credentials successfully sent to {target_email}")
+        except Exception as e:
+            print(f"Failed to send credentials to {target_email}: {e}")
+
+    threading.Thread(target=send_email_thread).start()
+    return True

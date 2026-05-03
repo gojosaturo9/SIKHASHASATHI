@@ -5,7 +5,6 @@ from src.components.footer import footer_dashboard
 from src.components.subject_card import subject_card
 from src.components.dialog_share_subject import share_subject_dialog
 from src.database.db import (
-    register_teacher,
     get_teacher_subjects,
     get_attendance_for_teacher,
     check_pass,
@@ -23,37 +22,51 @@ import pandas as pd
 
 from src.database.config import supabase
 from src.components.dialog_voice_attendance import voice_attendance_dialog
+from src.components.dialog_change_password import change_password_dialog
 
 
 def teacher_screen():
-
     style_background_dashboard()
     style_base_layout()
 
     if "teacher_data" in st.session_state:
         teacher_dashboard()
-    elif (
-        "teacher_login_type" not in st.session_state
-        or st.session_state.teacher_login_type == "login"
-    ):
+    else:
         teacher_screen_login()
-    elif st.session_state.teacher_login_type == "register":
-        teacher_screen_register()
 
 
 def teacher_dashboard():
     teacher_data = st.session_state.teacher_data
-    c1, c2 = st.columns(2, vertical_alignment="center", gap="xxlarge")
+
+    # 🚀 FIX 1: Outer Columns ko wapas '2' kar diya (50-50).
+    # Isse SAGE CLASS logo ko apni poori purani jagah mil jayegi aur wo kharab nahi hoga.
+    c1, c2 = st.columns(2, vertical_alignment="center", gap="large")
     with c1:
         header_dashboard()
     with c2:
         st.subheader(f"""Welcome, {teacher_data['name']} """)
-        if st.button(
-            "Logout", type="secondary", key="loginbackbtn", shortcut="control+backspace"
-        ):
-            st.session_state["is_logged_in"] = False
-            del st.session_state.teacher_data
-            st.rerun()
+
+        # 🚀 FIX 2: Sirf inner buttons ko ratio diya [1.4, 1].
+        # Isse Change Password apne aap fit ho jayega bina logo ki jagah khaaye.
+        btn_c1, btn_c2 = st.columns([1.4, 1])
+        with btn_c1:
+            if st.button(
+                "Change Password",
+                icon=":material/lock_reset:",
+                use_container_width=True,
+            ):
+                change_password_dialog()
+
+        with btn_c2:
+            if st.button(
+                "Logout",
+                type="secondary",
+                icon=":material/logout:",
+                use_container_width=True,
+            ):
+                st.session_state["is_logged_in"] = False
+                del st.session_state.teacher_data
+                st.rerun()
 
     st.space()
 
@@ -494,13 +507,13 @@ def teacher_screen_login():
                 box-shadow: 0 0 5px rgba(235, 69, 158, 0.5) !important;
             }
             
-            /*  Placeholder wapas laane ke liye */
+            /* Placeholder wapas laane ke liye */
             .stTextInput input::placeholder {
                 color: #A0AAB2 !important; /* Halka grey color */
                 opacity: 1 !important; /* Ensure visibility */
             }
 
-            /*  "Press Enter to apply" gayab karne ke liye */
+            /* "Press Enter to apply" gayab karne ke liye */
             div[data-testid="InputInstructions"] {
                 display: none !important;
             }
@@ -518,7 +531,6 @@ def teacher_screen_login():
         unsafe_allow_html=True,
     )
 
-    # --- Baki ka code same rahega ---
     c1, c2 = st.columns(2, vertical_alignment="center", gap="xxlarge")
     with c1:
         header_dashboard()
@@ -533,7 +545,7 @@ def teacher_screen_login():
             st.rerun()
 
     st.markdown(
-        "<h2 style='text-align: center; color:black;'>Login using password</h2>",
+        "<h2 style='text-align: center; color:black;'>Teacher Login Panel</h2>",
         unsafe_allow_html=True,
     )
 
@@ -550,182 +562,39 @@ def teacher_screen_login():
         unsafe_allow_html=True,
     )
 
-    btnc1, btnc2 = st.columns(2)
-    with btnc1:
-        if st.button(
-            "Login",
-            icon=":material/passkey:",
-            shortcut="control+enter",
-            width="stretch",
-        ):
+    # 🚀 FIX: Columns hata diye. Ab sirf ek bada 'Login Securely' button hai.
+    if st.button(
+        "Login Securely",
+        type="primary",
+        icon=":material/passkey:",
+        shortcut="control+enter",
+        use_container_width=True,
+    ):
 
-            response = (
-                supabase.table("teachers")
-                .select("*")
-                .eq("username", teacher_username)
-                .execute()
-            )
+        response = (
+            supabase.table("teachers")
+            .select("*")
+            .eq("username", teacher_username)
+            .execute()
+        )
 
-            if response.data:
-                teacher_data = response.data[0]
+        if response.data:
+            teacher_data = response.data[0]
 
-                # Step 1: Pehle password check karein
-                if check_pass(teacher_pass, teacher_data["password"]):
+            # 🚀 FIX: Seedha password check karo aur login karao (is_verified hata diya)
+            if check_pass(teacher_pass, teacher_data["password"]):
+                st.session_state["is_logged_in"] = True
+                st.session_state["user_role"] = "teacher"
+                st.session_state["teacher_data"] = teacher_data
 
-                    # Step 2: Password sahi hai, ab check karein Admin ne verify kiya hai ya nahi
-                    if teacher_data.get("is_verified") == True:
-                        # Verified! Login kara dein
-                        st.session_state["is_logged_in"] = True
-                        st.session_state["user_role"] = "teacher"
-                        st.session_state["teacher_data"] = teacher_data
-
-                        st.toast("Welcome back!", icon="👋")
-                        import time
-
-                        time.sleep(1)
-                        st.rerun()
-                    else:
-                        # Password sahi hai, par Admin verification baaki hai
-                        st.warning(
-                            "⚠️ Your account is pending Admin approval. Please wait for verification."
-                        )
-                else:
-                    st.error("Invalid password!")
-            else:
-                st.error("Username not found!")
-
-    with btnc2:
-        if st.button(
-            "Register Instead",
-            type="primary",
-            icon=":material/app_registration:",
-            width="stretch",
-        ):
-            st.session_state.teacher_login_type = "register"
-            st.rerun()
-    # 👆 YAHAN TAK 👆
-
-    footer_dashboard()
-
-
-def teacher_screen_register():
-    st.markdown(
-        """
-        <style>
-            /* 1. Label Text Color */
-            .stTextInput label p {
-                color: #2D3436 !important; 
-                font-weight: 600 !important;
-                font-size: 1.1rem !important;
-            }
-            
-            /* 2. Input Box Styling */
-            .stTextInput input {
-                background-color: #FFFFFF !important; 
-                color: #000000 !important; 
-                border: 2px solid #5865F2 !important; 
-                border-radius: 0.8rem !important;
-            }
-            
-            /* 3. Focus / Click Effect */
-            .stTextInput input:focus {
-                border-color: #EB459E !important; 
-                box-shadow: 0 0 5px rgba(235, 69, 158, 0.5) !important;
-            }
-            
-            /*  NAYA FIX 1: Placeholder wapas laane ke liye */
-            .stTextInput input::placeholder {
-                color: #A0AAB2 !important; 
-                opacity: 1 !important; 
-            }
-
-            /* NAYA FIX 2: "Press Enter to apply" gayab karne ke liye */
-            div[data-testid="InputInstructions"] {
-                display: none !important;
-            }
-            
-            /* 4. Custom Divider */
-            hr {
-                border: none !important;
-                border-top: 2px solid #5865F2 !important; 
-                margin-top: 2rem !important;
-                margin-bottom: 2rem !important;
-                opacity: 0.5; 
-            }
-        </style>
-    """,
-        unsafe_allow_html=True,
-    )
-    c1, c2 = st.columns(2, vertical_alignment="center", gap="xxlarge")
-    with c1:
-        header_dashboard()
-    with c2:
-        if st.button(
-            "Go back to Home",
-            type="secondary",
-            key="loginbackbtn",
-            shortcut="control+backspace",
-        ):
-            st.session_state["login_type"] = None
-            st.rerun()
-
-    st.markdown(
-        "<h2 style='text-align: center; color:black;'>Register your teacher profile</h2>",
-        unsafe_allow_html=True,
-    )
-
-    teacher_username = st.text_input(
-        "Enter username", placeholder="Enter username here"
-    )
-
-    teacher_name = st.text_input("Enter name", placeholder="Enter your name here")
-
-    # 👇 NAYA FIELD: Email ID ke liye
-    teacher_email = st.text_input(
-        "Enter Email ID", placeholder="Enter your valid email id"
-    )
-
-    teacher_pass = st.text_input(
-        "Enter password", type="password", placeholder="Enter password"
-    )
-
-    teacher_pass_confirm = st.text_input(
-        "Confirm your password", type="password", placeholder="Enter password"
-    )
-
-    st.divider()
-
-    btnc1, btnc2 = st.columns(2)
-
-    with btnc1:
-        if st.button(
-            "Register now",
-            icon=":material/passkey:",
-            shortcut="control+enter",
-            width="stretch",
-        ):
-
-            success, message = register_teacher(
-                teacher_username,
-                teacher_name,
-                teacher_email,
-                teacher_pass,
-                teacher_pass_confirm,
-            )
-            if success:
-                st.success(message)
+                st.toast("Welcome back!", icon="👋")
                 import time
 
-                time.sleep(2)
-                st.session_state.teacher_login_type = "login"
+                time.sleep(1)
                 st.rerun()
             else:
-                st.error(message)
-
-    with btnc2:
-        if st.button(
-            "Login Instead", type="primary", icon=":material/passkey:", width="stretch"
-        ):
-            st.session_state.teacher_login_type = "login"
+                st.error("Invalid password!")
+        else:
+            st.error("Username not found! Contact Admin if you don't have an account.")
 
     footer_dashboard()
