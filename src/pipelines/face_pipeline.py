@@ -103,7 +103,8 @@ def predict_attendance(class_image_np, subject_id=None):
 
         best_match_score = np.linalg.norm(student_embedding - encoding)
 
-        resemblance_threshold = 0.45
+        # 👇 YAHAN CHANGE KIYA HAI: 0.45 se 0.40 kar diya taaki accuracy 100% rahe badi classes mein
+        resemblance_threshold = 0.40
 
         if best_match_score <= resemblance_threshold:
             detected_student[predicted_id] = True

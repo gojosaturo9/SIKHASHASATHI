@@ -264,13 +264,22 @@ def teacher_tab_manage_subjects():
             is_class_wise = sub.get("type") == "class_wise"
             sub_type_label = "📍 Class-wise" if is_class_wise else "🌐 Mixed"
 
+            # 🚀 NAYA FIX: Lists/Arrays ko format karke sundar text banana
             if is_class_wise:
-                b = sub.get("target_branch", "All")
-                s = sub.get("target_semester", "All")
-                sec = sub.get("target_section", "All")
-                class_details = f"🎓 {b} | Sem {s} | Sec {sec}"
+                b_list = sub.get("target_branch") or []
+                s_list = sub.get("target_semester") or []
+                sec_list = sub.get("target_section") or []
+
+                # Agar list khali nahi hai toh comma se join karo, warna "All" likho
+                b_str = ", ".join(b_list) if b_list else "All"
+
+                # Semester integers ho sakte hain, isliye string me convert karke join kiya
+                s_str = ", ".join([str(x) for x in s_list]) if s_list else "All"
+
+                sec_str = ", ".join(sec_list) if sec_list else "All"
+
+                class_details = f"🎓 {b_str} | Sem {s_str} | Sec {sec_str}"
             else:
-                # 🚀 FIX: Yahan se section dikhane ka logic hata diya
                 class_details = "🧩 Mixed/Open Class"
 
             stats = [

@@ -17,41 +17,45 @@ def create_subject_dialog(teacher_id):
         "Enrollment Type",
         options=["Class-wise (Smart Auto-Enroll)", "Mixed/Open (Manual Enroll)"],
         captions=[
-            "Automatically fetches all students of a specific class.",
+            "Automatically fetches all students of selected classes.",
             "Students will enroll themselves using the subject code.",
         ],
     )
 
-    t_branch = None
-    t_sem = None
-    t_sec = None
+    # Ab by default empty lists rahenge
+    t_branch, t_sem, t_sec = [], [], []
 
     if sub_type_selection == "Class-wise (Smart Auto-Enroll)":
         st.info(
-            "Select the target class. All students in this class will be auto-enrolled."
+            "Select the target classes. You can choose multiple branches, semesters, and sections."
         )
-        col1, col2, col3 = st.columns(3)
+
+        # 🚀 NAYA FIX: st.multiselect lagaya
+        t_branch = st.multiselect(
+            "Branches",
+            [
+                "Computer Science",
+                "Information Tech",
+                "ECE",
+                "Mechanical",
+                "Civil",
+                "Ai/ML",
+                "Ai/DS",
+                "DS",
+                "Cyber"
+            ],
+            placeholder="Select one or more",
+        )
+
+        col1, col2 = st.columns(2)
         with col1:
-            t_branch = st.selectbox(
-                "Branch",
-                [
-                    "Computer Science",
-                    "Information Tech",
-                    "ECE",
-                    "Mechanical",
-                    "Civil",
-                    "AI/ML",
-                    "AI/DS",
-                    "Cyber",
-                    "DS",
-                ],
+            t_sem = st.multiselect(
+                "Semesters", [1, 2, 3, 4, 5, 6, 7, 8], placeholder="e.g. 3, 4"
             )
         with col2:
-            t_sem = st.selectbox("Semester", [1, 2, 3, 4, 5, 6, 7, 8])
-        with col3:
-            t_sec = st.selectbox("Section", ["A", "B", "C", "D", "None"])
-
-    # 🚀 FIX: Else block hata diya! Mixed ke liye ab koi input nahi aayega aur t_sec automatically None rahega.
+            t_sec = st.multiselect(
+                "Sections", ["A", "B", "C", "D"], placeholder="e.g. A, B"
+            )
 
     db_type = (
         "class_wise"
@@ -61,6 +65,12 @@ def create_subject_dialog(teacher_id):
 
     if st.button("Create Subject Now", type="primary", width="stretch"):
         if sub_id and sub_name:
+            if db_type == "class_wise" and (not t_branch or not t_sem or not t_sec):
+                st.warning(
+                    "Please select at least one Branch, Semester, and Section for Class-wise enrollment."
+                )
+                return
+
             try:
                 create_subject(
                     teacher_id=teacher_id,

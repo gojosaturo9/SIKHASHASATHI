@@ -89,17 +89,21 @@ def create_subject(
     target_semester=None,
     target_section=None,
 ):
-    data = {
-        "teacher_id": teacher_id,
-        "subject_code": code,
-        "name": name,
-        "type": sub_type,
-        "target_branch": target_branch,
-        "target_semester": target_semester,
-        "target_section": target_section,
-    }
-    response = supabase.table("subjects").insert(data).execute()
-    return response.data
+    try:
+        data = {
+            "teacher_id": teacher_id,
+            "subject_code": code,
+            "name": name,
+            "type": sub_type,
+            "target_branch": target_branch if target_branch else [],
+            "target_semester": target_semester if target_semester else [],
+            "target_section": target_section if target_section else [],
+        }
+        response = supabase.table("subjects").insert(data).execute()
+        return True if response.data else False
+    except Exception as e:
+        print(f"Error creating subject: {e}")
+        raise e
 
 
 def get_teacher_subjects(teacher_id):
@@ -213,7 +217,6 @@ def get_all_attendance_records():
 
 
 def get_students_for_subject(subject_id):
-    # 1. Pehle subject ki details nikalo ki wo class-wise hai ya mixed
     sub_response = (
         supabase.table("subjects").select("*").eq("subject_id", subject_id).execute()
     )
@@ -225,29 +228,30 @@ def get_students_for_subject(subject_id):
     sub_type = subject.get("type", "mixed")
 
     if sub_type == "class_wise":
-        # OPTION 1: Smart Auto-Fetch (Sirf unhi bacchon ko lao jo us branch/sem/sec ke hain)
         query = supabase.table("students").select("*")
 
-        if subject.get("target_branch") and subject.get("target_branch") != "All":
-            query = query.eq("branch", subject.get("target_branch"))
+        # 🚀 NAYA FIX: .in_() use kar rahe hain array matching ke liye
+        branches = subject.get("target_branch", [])
+        if branches:
+            query = query.in_("branch", branches)
 
-        if subject.get("target_semester"):
-            query = query.eq("semester", subject.get("target_semester"))
+        semesters = subject.get("target_semester", [])
+        if semesters:
+            query = query.in_("semester", semesters)
 
-        if subject.get("target_section") and subject.get("target_section") != "None":
-            query = query.eq("section", subject.get("target_section"))
+        sections = subject.get("target_section", [])
+        if sections:
+            query = query.in_("section", sections)
 
         res = query.execute()
         return res.data
 
     else:
-        # OPTION 2: Mixed/Open (Sirf unko lao jinhone manually enroll kiya hai)
         res = (
             supabase.table("subject_students")
             .select("students(*)")
             .eq("subject_id", subject_id)
             .execute()
         )
-        # Data ko seedha list of students mein convert karna
         students = [item["students"] for item in res.data if item.get("students")]
         return students
