@@ -175,7 +175,7 @@ def home_screen():
     )
 
     # Actual working Streamlit input+button (styled to match)
-    left, mid, right = st.columns([0.2, 3, 0.2])
+    left, mid, right = st.columns([0.001, 3, 0.001])
     with mid:
         with st.container():
             st.markdown('<div class="admin-real">', unsafe_allow_html=True)

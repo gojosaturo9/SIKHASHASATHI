@@ -127,9 +127,21 @@ def attendance_analytics_tab():
         teachers_df = pd.DataFrame(teachers_data)
         students_df = pd.DataFrame(students_data)
         
-        # 🚀 FIX: Remove heavy/unnecessary columns like face/voice embeddings
+        # 🚀 FIX 1: Remove heavy/unnecessary columns
         cols_to_drop = ["face_embedding", "voice_embedding", "face_encodings", "voice_data"]
         students_df = students_df.drop(columns=[c for c in cols_to_drop if c in students_df.columns], errors='ignore')
+
+        # 🚀 FIX 2: DATA NORMALIZATION (Ignore Upper/Lower Case)
+        # Subject ko standardize karo
+        if not df.empty and "Subject" in df.columns:
+            df["Subject"] = df["Subject"].astype(str).str.upper()
+            
+        # Enrollment/Roll No ko standardize karo
+        if not students_df.empty:
+            for col in students_df.columns:
+                # Agar column ke naam mein 'enroll' ya 'roll' hai, toh uske data ko UPPERCASE kar do
+                if 'enroll' in col.lower() or 'roll' in col.lower():
+                    students_df[col] = students_df[col].astype(str).str.upper()
 
     except Exception as e:
         st.error(f"Database Error: Could not fetch extra details - {e}")
@@ -187,10 +199,9 @@ def attendance_analytics_tab():
                 
             st.divider()
             
-            # Naya Chart: Subject Wise Performance
+            # Subject Wise Performance (Ab Uppercase problem nahi aayegi)
             st.write("#### 📚 Subject-wise Average Attendance (%)")
             if "Subject" in df.columns:
-                # Calculate percentage of present students per subject
                 subject_stats = df.groupby("Subject").apply(
                     lambda x: (x["Status"] == "✅ Present").mean() * 100
                 ).round(1)
@@ -233,7 +244,6 @@ def attendance_analytics_tab():
         if not full_student_data.empty:
             search_stu = st.text_input("🔍 Search Student Name/Roll No", placeholder="Type here...", key="search_all")
             
-            # --- ADDED FILTERS HERE ---
             f1, f2, f3 = st.columns(3)
             with f1:
                 branch_filter = st.selectbox("Branch", ["All"] + list(full_student_data.get("branch", pd.Series()).dropna().unique()), key="branch_all")
@@ -244,7 +254,6 @@ def attendance_analytics_tab():
             
             display_df = full_student_data.copy()
             
-            # Apply Filters
             if branch_filter != "All":
                 display_df = display_df[display_df["branch"] == branch_filter]
             if sem_filter != "All":
@@ -252,6 +261,7 @@ def attendance_analytics_tab():
             if sec_filter != "All":
                 display_df = display_df[display_df["section"] == sec_filter]
 
+            # Search Bar is already Case-Insensitive (case=False)
             if search_stu:
                 display_df = display_df[display_df.astype(str).apply(lambda x: x.str.contains(search_stu, case=False)).any(axis=1)]
 
@@ -270,8 +280,6 @@ def attendance_analytics_tab():
         st.write("### 🚨 Critical Attention Required (Attendance < 75%)")
         
         if not full_student_data.empty:
-            
-            # --- ADDED FILTERS HERE AS WELL ---
             df1, df2, df3 = st.columns(3)
             with df1:
                 d_branch_filter = st.selectbox("Branch", ["All"] + list(full_student_data.get("branch", pd.Series()).dropna().unique()), key="d_branch")
@@ -282,7 +290,6 @@ def attendance_analytics_tab():
                 
             defaulters_df = full_student_data[full_student_data["Attendance_%"] < 75.0].sort_values(by="Attendance_%")
             
-            # Apply Filters
             if d_branch_filter != "All":
                 defaulters_df = defaulters_df[defaulters_df["branch"] == d_branch_filter]
             if d_sem_filter != "All":
