@@ -127,19 +127,20 @@ def teacher_tab_take_attendance():
     subjects = get_teacher_subjects(teacher_id)
 
     if not subjects:
-        st.warning("You havent created any subjects yet! Please create one to begin!")
+        st.warning("You haven't created any subjects yet! Please create one to begin!")
         return
 
-    subject_options = {
-        f"{s['name']} - {s['subject_code']}": s["subject_id"] for s in subjects
-    }
+    # Subject details store karna zaroori hai (Name aur ID dono)
+    subject_options = {f"{s['name']} - {s['subject_code']}": s for s in subjects}
 
     col1, col2 = st.columns([3, 1], vertical_alignment="bottom")
-
     with col1:
-        selected_subject_label = st.selectbox(
+        selected_label = st.selectbox(
             "Select Subject", options=list(subject_options.keys())
         )
+        selected_subject = subject_options[selected_label]
+        selected_subject_id = selected_subject["subject_id"]
+        selected_subject_name = selected_subject["name"]
 
     with col2:
         if st.button(
@@ -150,17 +151,15 @@ def teacher_tab_take_attendance():
         ):
             add_photos_dialog()
 
-    selected_subject_id = subject_options[selected_subject_label]
-
     st.divider()
 
     if st.session_state.attendance_images:
         st.header("Added Photos")
         gallery_cols = st.columns(4)
-
         for idx, img in enumerate(st.session_state.attendance_images):
             with gallery_cols[idx % 4]:
-                st.image(img, width="stretch", caption=f"Photo {idx+1}")
+                st.image(img, use_container_width=True, caption=f"Photo {idx+1}")
+
     has_photos = bool(st.session_state.attendance_images)
     c1, c2, c3 = st.columns(3)
 
@@ -176,7 +175,6 @@ def teacher_tab_take_attendance():
             st.rerun()
 
     with c2:
-
         if st.button(
             "Run Face Analysis",
             width="stretch",
@@ -189,34 +187,28 @@ def teacher_tab_take_attendance():
 
                 for idx, img in enumerate(st.session_state.attendance_images):
                     img_np = np.array(img.convert("RGB"))
-                    detected, _, _ = predict_attendance(img_np)
+                    # 🚀 STEP 5: Ab hum subject_id pass kar rahe hain (Smart Prediction)
+                    detected, _, _ = predict_attendance(img_np, selected_subject_id)
 
                     if detected:
                         for sid in detected.keys():
                             student_id = int(sid)
-
                             all_detected_ids.setdefault(student_id, []).append(
                                 f"Photo {idx+1}"
                             )
 
-                enrolled_res = (
-                    supabase.table("subject_students")
-                    .select("*, students(*)")
-                    .eq("subject_id", selected_subject_id)
-                    .execute()
-                )
-                enrolled_students = enrolled_res.data
+                # 🚀 STEP 3: Smart student fetching (Auto or Manual)
+                from src.database.db import get_students_for_subject
 
-                if not enrolled_students:
-                    st.warning("No students enrolled in this course")
+                students_list = get_students_for_subject(selected_subject_id)
+
+                if not students_list:
+                    st.warning("No students found for this class/subject.")
                 else:
-
                     results, attendance_to_log = [], []
-
                     current_timestamp = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
 
-                    for node in enrolled_students:
-                        student = node["students"]
+                    for student in students_list:
                         sources = all_detected_ids.get(int(student["student_id"]), [])
                         is_present = len(sources) > 0
 
@@ -224,7 +216,9 @@ def teacher_tab_take_attendance():
                             {
                                 "Name": student["name"],
                                 "ID": student["student_id"],
-                                "email_id": student.get("email_id"),  # 👈 NAYA ADD KIYA
+                                "email_id": student.get(
+                                    "email_id"
+                                ),  # Email notification ke liye zaroori
                                 "is_present": is_present,
                                 "Source": ", ".join(sources) if is_present else "-",
                                 "Status": "✅ Present" if is_present else "❌ Absent",
@@ -240,7 +234,10 @@ def teacher_tab_take_attendance():
                             }
                         )
 
-                attendance_result_dialog(pd.DataFrame(results), attendance_to_log)
+                    # 🚀 STEP 5: Dialog ko subject name bhi pass kar rahe hain email trigger ke liye
+                    attendance_result_dialog(
+                        pd.DataFrame(results), attendance_to_log, selected_subject_name
+                    )
 
     with c3:
         if st.button(
@@ -263,25 +260,40 @@ def teacher_tab_manage_subjects():
 
     subjects = get_teacher_subjects(teacher_id)
     if subjects:
-        for sub in subjects:  # ✅ for loop
+        for sub in subjects:
+            is_class_wise = sub.get("type") == "class_wise"
+            sub_type_label = "📍 Class-wise" if is_class_wise else "🌐 Mixed"
+
+            if is_class_wise:
+                b = sub.get("target_branch", "All")
+                s = sub.get("target_semester", "All")
+                sec = sub.get("target_section", "All")
+                class_details = f"🎓 {b} | Sem {s} | Sec {sec}"
+            else:
+                # 🚀 FIX: Yahan se section dikhane ka logic hata diya
+                class_details = "🧩 Mixed/Open Class"
+
             stats = [
                 ("🫂", "Students", sub["total_students"]),
                 ("🕰️", "Classes", sub["total_classes"]),
+                ("🏷️", "Type", sub_type_label),
             ]
 
-            def share_btn():  # ✅ for ke andar
+            def share_btn(current_sub=sub):
                 if st.button(
-                    f"Share Code: {sub['name']}",
-                    key=f"share_{sub['subject_code']}",
+                    f"Share Code: {current_sub['name']}",
+                    key=f"share_{current_sub['subject_id']}",
                     icon=":material/share:",
                 ):
-                    share_subject_dialog(sub["name"], sub["subject_code"])
+                    share_subject_dialog(
+                        current_sub["name"], current_sub["subject_code"]
+                    )
                 st.space()
 
-            subject_card(  # ✅ for ke andar
+            subject_card(
                 name=sub["name"],
                 code=sub["subject_code"],
-                section=sub["section"],
+                section=class_details,
                 stats=stats,
                 footer_callback=share_btn,
             )

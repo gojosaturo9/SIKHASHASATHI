@@ -80,12 +80,23 @@ def create_student(
     return response.data
 
 
-def create_subject(subject_code, name, section, teacher_id):
+def create_subject(
+    teacher_id,
+    code,
+    name,
+    sub_type="mixed",
+    target_branch=None,
+    target_semester=None,
+    target_section=None,
+):
     data = {
-        "subject_code": subject_code,
-        "name": name,
-        "section": section,
         "teacher_id": teacher_id,
+        "subject_code": code,
+        "name": name,
+        "type": sub_type,
+        "target_branch": target_branch,
+        "target_semester": target_semester,
+        "target_section": target_section,
     }
     response = supabase.table("subjects").insert(data).execute()
     return response.data
@@ -199,3 +210,44 @@ def get_all_attendance_records():
         )
 
     return flattened_data
+
+
+def get_students_for_subject(subject_id):
+    # 1. Pehle subject ki details nikalo ki wo class-wise hai ya mixed
+    sub_response = (
+        supabase.table("subjects").select("*").eq("subject_id", subject_id).execute()
+    )
+
+    if not sub_response.data:
+        return []
+
+    subject = sub_response.data[0]
+    sub_type = subject.get("type", "mixed")
+
+    if sub_type == "class_wise":
+        # OPTION 1: Smart Auto-Fetch (Sirf unhi bacchon ko lao jo us branch/sem/sec ke hain)
+        query = supabase.table("students").select("*")
+
+        if subject.get("target_branch") and subject.get("target_branch") != "All":
+            query = query.eq("branch", subject.get("target_branch"))
+
+        if subject.get("target_semester"):
+            query = query.eq("semester", subject.get("target_semester"))
+
+        if subject.get("target_section") and subject.get("target_section") != "None":
+            query = query.eq("section", subject.get("target_section"))
+
+        res = query.execute()
+        return res.data
+
+    else:
+        # OPTION 2: Mixed/Open (Sirf unko lao jinhone manually enroll kiya hai)
+        res = (
+            supabase.table("subject_students")
+            .select("students(*)")
+            .eq("subject_id", subject_id)
+            .execute()
+        )
+        # Data ko seedha list of students mein convert karna
+        students = [item["students"] for item in res.data if item.get("students")]
+        return students
