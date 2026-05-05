@@ -27,3 +27,13 @@ pillow
 
 librosa
 resemblyzer
+
+
+
+opencv-python-headless
+bcrypt
+
+
+
+flask
+flask-cors

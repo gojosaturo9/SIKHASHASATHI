@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SAGE CLASS - Teacher Dashboard</title>
+    <link rel="manifest" href="manifest.json" />
+    <style>
+      /* STREAMLIT THEME CSS */
+      body {
+        font-family: "Source Sans Pro", sans-serif;
+        background-color: #ffffff;
+        color: #31333f;
+        margin: 0;
+        padding: 2rem 5rem;
+      }
+      @media (max-width: 768px) {
+        body {
+          padding: 1rem;
+        }
+      }
+
+      .st-columns {
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+      .st-col {
+        flex: 1;
+      }
+      .st-col-inner {
+        display: flex;
+        gap: 1rem;
+      }
+
+      h2,
+      h3 {
+        font-weight: 600;
+        color: #31333f;
+        margin-top: 0;
+      }
+
+      /* Buttons */
+      .st-btn {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        text-align: center;
+        border: 1px solid #dcdce0;
+        background: white;
+        color: #31333f;
+        transition: 0.2s;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+      }
+      .st-btn:hover {
+        border-color: #ff4b4b;
+        color: #ff4b4b;
+      }
+
+      .st-btn-primary {
+        background-color: #ff4b4b;
+        color: white;
+        border: none;
+      }
+      .st-btn-primary:hover {
+        background-color: #ff3333;
+        color: white;
+        border: none;
+      }
+
+      /* Tabs */
+      .st-tabs {
+        display: flex;
+        gap: 1rem;
+        border-bottom: 1px solid #e6e9ef;
+        margin-bottom: 2rem;
+        padding-bottom: 0.5rem;
+      }
+      .st-tab {
+        flex: 1;
+        padding: 0.5rem;
+        text-align: center;
+        cursor: pointer;
+        color: #31333f;
+        border-radius: 0.5rem;
+        transition: 0.2s;
+        background: #f8f9fa;
+        border: 1px solid transparent;
+      }
+      .st-tab.active {
+        background-color: #ff4b4b;
+        color: white;
+        font-weight: bold;
+        border-color: #ff4b4b;
+      }
+
+      /* Inputs */
+      .st-input {
+        width: 100%;
+        padding: 0.75rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #dcdce0;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        box-sizing: border-box;
+        background: #f8f9fa;
+      }
+      .st-input:focus {
+        outline: none;
+        border-color: #ff4b4b;
+        background: white;
+      }
+
+      /* Layout */
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+        animation: fadeIn 0.3s;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      /* Network & Sync Banners */
+      .network-banner {
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        font-weight: bold;
+        display: none;
+        text-align: center;
+      }
+      .offline-banner {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+        display: block;
+      }
+      .sync-banner {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+        cursor: pointer;
+        display: none;
+      }
+
+      hr {
+        border: 0;
+        border-top: 1px solid #e6e9ef;
+        margin: 2rem 0;
+      }
+
+      /* Network Magic Classes */
+      .online-text {
+        display: inline;
+      }
+      .offline-text {
+        display: none;
+      }
+      body.is-offline .online-text {
+        display: none;
+      }
+      body.is-offline .offline-text {
+        display: inline;
+      }
+    </style>
+  </head>
+  <body class="is-online">
+    <!-- Banners -->
+    <div
+      id="offlineBanner"
+      class="network-banner offline-banner"
+      style="display: none"
+    >
+      ⚠️ No Internet. App is in Offline Mode. Data will save locally.
+    </div>
+    <div
+      id="syncBanner"
+      class="network-banner sync-banner"
+      onclick="syncWithCloud()"
+    >
+      ☁️ Internet is back! Click to Sync <span id="syncCount">0</span> pending
+      items.
+    </div>
+
+    <!-- STREAMLIT TOP HEADER (c1 & c2) -->
+    <div class="st-columns">
+      <div class="st-col">
+        <!-- SAGE CLASS Logo Space -->
+        <h2>🎓 SAGE CLASS</h2>
+      </div>
+      <div class="st-col" style="text-align: right">
+        <h3 style="margin-bottom: 10px">Welcome, Teacher</h3>
+        <div class="st-col-inner" style="justify-content: flex-end">
+          <button class="st-btn" style="flex: 1.4">🔒 Change Password</button>
+          <button class="st-btn" style="flex: 1">🚪 Logout</button>
+        </div>
+      </div>
+    </div>
+
+    <hr />
+
+    <!-- STREAMLIT TABS -->
+    <div class="st-tabs">
+      <div
+        class="st-tab active"
+        id="tab-btn-1"
+        onclick="switchTab('take_attendance')"
+      >
+        📸 Take Attendance
+      </div>
+      <div class="st-tab" id="tab-btn-2" onclick="switchTab('manage_subjects')">
+        📚 Manage Subjects
+      </div>
+      <div
+        class="st-tab"
+        id="tab-btn-3"
+        onclick="switchTab('attendance_records')"
+      >
+        📋 Attendance Records
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 1: TAKE ATTENDANCE                     -->
+    <!-- ========================================== -->
+    <div id="take_attendance" class="tab-content active">
+      <h3>Take Class Attendance</h3>
+      <p style="color: #666; margin-bottom: 20px">
+        Enter subject code and capture a live class photo.
+      </p>
+
+      <label>Subject Code</label>
+      <input
+        type="text"
+        id="att_s_code"
+        class="st-input"
+        placeholder="e.g., CS-301"
+      />
+
+      <label>Capture Class Photo</label>
+      <input
+        type="file"
+        id="att_photo"
+        class="st-input"
+        accept="image/*"
+        capture="environment"
+      />
+
+      <button class="st-btn st-btn-primary" onclick="handleAttendanceSubmit()">
+        <span class="online-text">🚀 Mark Attendance Live</span>
+        <span class="offline-text">💾 Save Photo Offline</span>
+      </button>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: MANAGE SUBJECTS                     -->
+    <!-- ========================================== -->
+    <div id="manage_subjects" class="tab-content">
+      <h3>Create New Subject</h3>
+
+      <label>Teacher ID</label>
+      <input type="text" id="t_id" class="st-input" placeholder="e.g., T-101" />
+
+      <label>Subject Code</label>
+      <input
+        type="text"
+        id="s_code"
+        class="st-input"
+        placeholder="e.g., CS-301"
+      />
+
+      <label>Subject Name</label>
+      <input
+        type="text"
+        id="s_name"
+        class="st-input"
+        placeholder="e.g., Operating System"
+      />
+
+      <button class="st-btn st-btn-primary" onclick="handleSubjectSubmit()">
+        <span class="online-text">🚀 Create Subject Live</span>
+        <span class="offline-text">📥 Save Subject Offline</span>
+      </button>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: ATTENDANCE RECORDS (OFFLINE LOGS)   -->
+    <!-- ========================================== -->
+    <div id="attendance_records" class="tab-content">
+      <h3>Pending Offline Records</h3>
+      <p style="color: #666; margin-bottom: 20px">
+        These records are saved on your device waiting for internet.
+      </p>
+
+      <div
+        id="recordList"
+        style="
+          background: #f8f9fa;
+          padding: 20px;
+          border-radius: 10px;
+          border: 1px solid #dcdce0;
+        "
+      >
+        No pending records.
+      </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+      // --- Tab Switching Logic ---
+      function switchTab(tabId) {
+        // Hide all contents
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((el) => el.classList.remove("active"));
+        // Remove active class from all tabs
+        document
+          .querySelectorAll(".st-tab")
+          .forEach((el) => el.classList.remove("active"));
+
+        // Show selected
+        document.getElementById(tabId).classList.add("active");
+
+        // Highlight selected tab button
+        if (tabId === "take_attendance")
+          document.getElementById("tab-btn-1").classList.add("active");
+        if (tabId === "manage_subjects")
+          document.getElementById("tab-btn-2").classList.add("active");
+        if (tabId === "attendance_records")
+          document.getElementById("tab-btn-3").classList.add("active");
+      }
+
+      // --- Network & State Logic ---
+      function checkNetworkState() {
+        const isOnline = navigator.onLine;
+        const offlineBanner = document.getElementById("offlineBanner");
+
+        if (isOnline) {
+          document.body.className = "is-online";
+          offlineBanner.style.display = "none";
+          updateUI(); // Check if we need to show the sync banner
+        } else {
+          document.body.className = "is-offline";
+          offlineBanner.style.display = "block";
+          document.getElementById("syncBanner").style.display = "none";
+        }
+      }
+
+      window.addEventListener("offline", checkNetworkState);
+      window.addEventListener("online", checkNetworkState);
+      setInterval(checkNetworkState, 2000);
+
+      // --- UI Updates ---
+      function updateUI() {
+        let subjects =
+          JSON.parse(localStorage.getItem("offlineSubjects")) || [];
+        let attendance =
+          JSON.parse(localStorage.getItem("offlineAttendance")) || [];
+        let total = subjects.length + attendance.length;
+
+        let syncBanner = document.getElementById("syncBanner");
+        if (total > 0 && navigator.onLine) {
+          document.getElementById("syncCount").innerText = total;
+          syncBanner.style.display = "block";
+        } else {
+          syncBanner.style.display = "none";
+        }
+
+        // Update Records Tab
+        let list = document.getElementById("recordList");
+        if (total === 0) {
+          list.innerHTML = "<p>No pending records.</p>";
+        } else {
+          let html = "<ul style='padding-left: 20px;'>";
+          subjects.forEach(
+            (s) =>
+              (html += `<li style='margin-bottom:10px;'>📚 Subject: ${s.subject_code} - ${s.name}</li>`),
+          );
+          attendance.forEach(
+            (a) =>
+              (html += `<li style='margin-bottom:10px;'>📸 Attendance Photo Saved for ${a.subject_code}</li>`),
+          );
+          html += "</ul>";
+          list.innerHTML = html;
+        }
+      }
+
+      // --- Submit Logic ---
+      function handleSubjectSubmit() {
+        let subData = {
+          teacher_id: document.getElementById("t_id").value,
+          subject_code: document.getElementById("s_code").value,
+          name: document.getElementById("s_name").value,
+          type: "mixed",
+          target_branch: [],
+          target_semester: [],
+          target_section: [],
+        };
+
+        if (!subData.subject_code || !subData.name) {
+          alert("Code & Name required!");
+          return;
+        }
+
+        if (navigator.onLine) {
+          sendDataToServer([subData], []);
+        } else {
+          let subjects =
+            JSON.parse(localStorage.getItem("offlineSubjects")) || [];
+          subjects.push(subData);
+          localStorage.setItem("offlineSubjects", JSON.stringify(subjects));
+          updateUI();
+          alert("Subject saved to local device!");
+          // Clear input
+          document.getElementById("s_code").value = "";
+          document.getElementById("s_name").value = "";
+        }
+      }
+
+      function handleAttendanceSubmit() {
+        let subCode = document.getElementById("att_s_code").value;
+        let photoInput = document.getElementById("att_photo");
+
+        if (!subCode) {
+          alert("Subject Code required!");
+          return;
+        }
+        if (photoInput.files.length === 0) {
+          alert("Please capture a photo!");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = function () {
+          let attRecord = {
+            subject_code: subCode,
+            time: new Date().toISOString(),
+            photo_base64: reader.result,
+          };
+
+          if (navigator.onLine) {
+            sendDataToServer([], [attRecord]);
+          } else {
+            let attendance =
+              JSON.parse(localStorage.getItem("offlineAttendance")) || [];
+            attendance.push(attRecord);
+            localStorage.setItem(
+              "offlineAttendance",
+              JSON.stringify(attendance),
+            );
+            updateUI();
+            alert("Class Photo saved to local device!");
+          }
+        };
+        reader.readAsDataURL(photoInput.files[0]);
+      }
+
+      // --- Sync Server Logic ---
+      async function sendDataToServer(subjectsArray, attendanceArray) {
+        try {
+          // Flask Server API
+          let response = await fetch("http://localhost:5000/sync-attendance", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              subjects: subjectsArray,
+              attendance: attendanceArray,
+            }),
+          });
+
+          if (response.ok) {
+            alert("✅ Data Synced and ML Processing Complete!");
+            return true;
+          } else {
+            alert("❌ Server Error during live sync.");
+            return false;
+          }
+        } catch (err) {
+          alert("❌ Flask Server not reachable! Are you connected?");
+          return false;
+        }
+      }
+
+      function syncWithCloud() {
+        let subjects =
+          JSON.parse(localStorage.getItem("offlineSubjects")) || [];
+        let attendance =
+          JSON.parse(localStorage.getItem("offlineAttendance")) || [];
+
+        document.getElementById("syncBanner").innerText =
+          "⏳ Syncing and running ML model...";
+
+        sendDataToServer(subjects, attendance).then((success) => {
+          if (success) {
+            localStorage.removeItem("offlineSubjects");
+            localStorage.removeItem("offlineAttendance");
+            updateUI();
+            checkNetworkState();
+          } else {
+            document.getElementById("syncBanner").innerHTML =
+              "☁️ Internet is back! Click to Sync <span id='syncCount'>" +
+              (subjects.length + attendance.length) +
+              "</span> pending items.";
+          }
+        });
+      }
+
+      // Initialize App
+      checkNetworkState();
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("sw.js");
+      }
+    </script>
+  </body>
+</html>
