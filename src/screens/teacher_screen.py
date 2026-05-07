@@ -23,6 +23,7 @@ import pandas as pd
 from src.database.config import supabase
 from src.components.dialog_voice_attendance import voice_attendance_dialog
 from src.components.dialog_change_password import change_password_dialog
+from src.components.ai_insights import render_ai_insights
 
 
 def teacher_screen():
@@ -72,7 +73,7 @@ def teacher_dashboard():
 
     if "current_teacher_tab" not in st.session_state:
         st.session_state.current_teacher_tab = "take_attendance"
-    tab1, tab2, tab3 = st.columns(3)
+    tab1, tab2, tab3, tab4 = st.columns(4)
 
     with tab1:
         type1 = (
@@ -116,6 +117,21 @@ def teacher_dashboard():
             st.session_state.current_teacher_tab = "attendance_records"
             st.rerun()
 
+    with tab4:
+        type4 = (
+            "primary"
+            if st.session_state.current_teacher_tab == "ai_insights"
+            else "tertiary"
+        )
+        if st.button(
+            "AI Insights",
+            type=type4,
+            width="stretch",
+            icon=":material/auto_awesome:",
+        ):
+            st.session_state.current_teacher_tab = "ai_insights"
+            st.rerun()
+
     st.divider()
 
     if st.session_state.current_teacher_tab == "take_attendance":
@@ -126,6 +142,9 @@ def teacher_dashboard():
 
     if st.session_state.current_teacher_tab == "attendance_records":
         teacher_tab_attendance_records()
+
+    if st.session_state.current_teacher_tab == "ai_insights":
+        render_ai_insights()
 
     footer_dashboard()
 

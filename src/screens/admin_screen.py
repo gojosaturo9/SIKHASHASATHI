@@ -10,6 +10,7 @@ from src.database.db import get_all_attendance_records
 from src.utils.notifier import send_teacher_credentials_email
 from src.ui.base_layout import style_base_layout
 from src.components.footer import footer_dashboard
+from src.components.ai_insights import render_ai_insights
 
 
 # --- 🚀 NAYA FIX: ADD TEACHER TAB (Purana verification tab hata diya) ---
@@ -104,12 +105,16 @@ def admin_dashboard():
     st.divider()
 
     # 🚀 FIX: Tab ka naam change kar diya
-    tab1, tab2 = st.tabs(["👨‍🏫 Add Teacher", "📊 Attendance Analytics"])
+    tab1, tab2, tab3 = st.tabs(
+        ["👨‍🏫 Add Teacher", "📊 Attendance Analytics", "AI Insights"]
+    )
 
     with tab1:
         add_teacher_tab()  # 🚀 FIX: Naya function call kiya
     with tab2:
         attendance_analytics_tab()
+    with tab3:
+        render_ai_insights()
 
     footer_dashboard()
 
