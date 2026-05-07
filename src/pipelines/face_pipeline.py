@@ -122,9 +122,12 @@ import face_recognition_models
 from sklearn.svm import SVC
 import streamlit as st
 import cv2
+import logging
 
 from src.database.db import get_students_for_subject, get_all_students
 from src.pipelines.anti_spoofing import check_liveness
+
+logger = logging.getLogger(__name__)
 
 
 @st.cache_resource
@@ -164,10 +167,10 @@ def get_face_embeddings(image_np):
         is_real = check_liveness(face_crop_bgr)
 
         if not is_real:
-            print("[Pipeline] ❌ Spoof detected — skip")
+            logger.info("[Pipeline] Spoof detected; skipping face")
             continue
 
-        print("[Pipeline] ✅ Real face — embedding add kiya")
+        logger.info("[Pipeline] Real face detected; embedding added")
         encodings.append(encoding)
 
     return encodings
@@ -240,10 +243,12 @@ def predict_attendance(class_image_np, subject_id=None):
 
         if best_match_score <= resemblance_threshold:
             detected_student[predicted_id] = True
-            print(
-                f"[Pipeline] ✅ Student {predicted_id} detected (score: {best_match_score:.3f})"
+            logger.info(
+                "[Pipeline] Student %s detected (score: %.3f)",
+                predicted_id,
+                best_match_score,
             )
         else:
-            print(f"[Pipeline] ❌ No match (score: {best_match_score:.3f})")
+            logger.info("[Pipeline] No match (score: %.3f)", best_match_score)
 
     return detected_student, all_students, len(encodings)

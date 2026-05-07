@@ -23,6 +23,83 @@ import pandas as pd
 from src.database.config import supabase
 from src.components.dialog_voice_attendance import voice_attendance_dialog
 from src.components.dialog_change_password import change_password_dialog
+from src.components.chatbot import role_chatbot
+
+
+def _teacher_dashboard_styles():
+    st.markdown(
+        """
+        <style>
+            .teacher-hero {
+                padding: 1.1rem 1.2rem;
+                border-radius: 8px;
+                border: 1px solid rgba(32, 50, 72, 0.10);
+                background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(241,248,255,0.90));
+                box-shadow: 0 16px 36px rgba(28, 43, 64, 0.08);
+                margin: 0.5rem 0 1rem 0;
+            }
+            .teacher-hero-kicker {
+                color: #17633a;
+                font-size: 0.78rem;
+                font-weight: 750;
+                text-transform: uppercase;
+                letter-spacing: 0;
+                margin-bottom: 0.35rem;
+            }
+            .teacher-hero-title {
+                color: #172235;
+                font-size: 1.65rem;
+                font-weight: 760;
+                line-height: 1.2;
+                margin: 0;
+            }
+            .teacher-hero-subtitle {
+                color: #52657a;
+                font-size: 0.95rem;
+                margin: 0.35rem 0 0 0;
+            }
+            .teacher-stat-row {
+                display: grid;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 0.7rem;
+                margin: 0.8rem 0 1rem 0;
+            }
+            .teacher-stat {
+                padding: 0.85rem 0.95rem;
+                border-radius: 8px;
+                border: 1px solid rgba(32, 50, 72, 0.10);
+                background: rgba(255,255,255,0.82);
+            }
+            .teacher-stat-label {
+                color: #5f7185;
+                font-size: 0.78rem;
+                font-weight: 700;
+                margin-bottom: 0.2rem;
+            }
+            .teacher-stat-value {
+                color: #172235;
+                font-size: 1.35rem;
+                font-weight: 780;
+            }
+            .teacher-nav-panel {
+                padding: 0.75rem;
+                border-radius: 8px;
+                border: 1px solid rgba(32, 50, 72, 0.10);
+                background: rgba(255,255,255,0.70);
+                margin-bottom: 0.9rem;
+            }
+            @media (max-width: 760px) {
+                .teacher-stat-row {
+                    grid-template-columns: 1fr;
+                }
+                .teacher-hero-title {
+                    font-size: 1.35rem;
+                }
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def teacher_screen():
@@ -36,15 +113,38 @@ def teacher_screen():
 
 
 def teacher_dashboard():
+    _teacher_dashboard_styles()
     teacher_data = st.session_state.teacher_data
+    teacher_id = teacher_data["teacher_id"]
+
+    try:
+        dashboard_subjects = get_teacher_subjects(teacher_id)
+    except Exception:
+        dashboard_subjects = []
+    total_subjects = len(dashboard_subjects)
+    total_students = sum(
+        int(subject.get("total_students", 0) or 0) for subject in dashboard_subjects
+    )
+    total_classes = sum(
+        int(subject.get("total_classes", 0) or 0) for subject in dashboard_subjects
+    )
 
     # 🚀 FIX 1: Outer Columns ko wapas '2' kar diya (50-50).
     # Isse SAGE CLASS logo ko apni poori purani jagah mil jayegi aur wo kharab nahi hoga.
-    c1, c2 = st.columns(2, vertical_alignment="center", gap="large")
+    c1, c2 = st.columns([1.1, 1.6], vertical_alignment="center", gap="large")
     with c1:
         header_dashboard()
     with c2:
-        st.subheader(f"""Welcome, {teacher_data['name']} """)
+        st.markdown(
+            f"""
+            <div class="teacher-hero">
+                <div class="teacher-hero-kicker">Teacher dashboard</div>
+                <div class="teacher-hero-title">Welcome, {teacher_data['name']}</div>
+                <p class="teacher-hero-subtitle">Manage attendance, subjects, records, and dashboard questions from one place.</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
         # 🚀 FIX 2: Sirf inner buttons ko ratio diya [1.4, 1].
         # Isse Change Password apne aap fit ho jayega bina logo ki jagah khaaye.
@@ -68,11 +168,30 @@ def teacher_dashboard():
                 del st.session_state.teacher_data
                 st.rerun()
 
-    st.space()
+    st.markdown(
+        f"""
+        <div class="teacher-stat-row">
+            <div class="teacher-stat">
+                <div class="teacher-stat-label">Subjects</div>
+                <div class="teacher-stat-value">{total_subjects}</div>
+            </div>
+            <div class="teacher-stat">
+                <div class="teacher-stat-label">Enrolled students</div>
+                <div class="teacher-stat-value">{total_students}</div>
+            </div>
+            <div class="teacher-stat">
+                <div class="teacher-stat-label">Recorded classes</div>
+                <div class="teacher-stat-value">{total_classes}</div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     if "current_teacher_tab" not in st.session_state:
         st.session_state.current_teacher_tab = "take_attendance"
-    tab1, tab2, tab3 = st.columns(3)
+    st.markdown('<div class="teacher-nav-panel">', unsafe_allow_html=True)
+    tab1, tab2, tab3, tab4 = st.columns(4)
 
     with tab1:
         type1 = (
@@ -116,7 +235,21 @@ def teacher_dashboard():
             st.session_state.current_teacher_tab = "attendance_records"
             st.rerun()
 
-    st.divider()
+    with tab4:
+        type4 = (
+            "primary"
+            if st.session_state.current_teacher_tab == "chatbot"
+            else "tertiary"
+        )
+        if st.button(
+            "Chatbot",
+            type=type4,
+            width="stretch",
+            icon=":material/chat:",
+        ):
+            st.session_state.current_teacher_tab = "chatbot"
+            st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
 
     if st.session_state.current_teacher_tab == "take_attendance":
         teacher_tab_take_attendance()
@@ -126,6 +259,9 @@ def teacher_dashboard():
 
     if st.session_state.current_teacher_tab == "attendance_records":
         teacher_tab_attendance_records()
+
+    if st.session_state.current_teacher_tab == "chatbot":
+        role_chatbot("teacher")
 
     footer_dashboard()
 

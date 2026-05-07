@@ -1,5 +1,6 @@
 import streamlit as st
 from src.ui.base_layout import style_base_layout
+from src.utils.secrets import get_secret
 
 
 def style_background_home():
@@ -199,7 +200,7 @@ def home_screen():
     if unlock:
         if not admin_pass:
             st.warning("Password cannot be empty")
-        elif admin_pass == st.secrets.get("ADMIN_PASSWORD", ""):
+        elif admin_pass == get_secret("ADMIN_PASSWORD", ""):
             st.session_state["login_type"] = "admin"
             st.session_state["is_logged_in"] = True
             st.session_state["user_role"] = "admin"

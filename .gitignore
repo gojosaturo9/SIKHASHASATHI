@@ -6,3 +6,4 @@ __pycache__/
 .streamlit/
 dist/
 .streamlit/secrets.toml
+streamlit*.log

@@ -1,16 +1,35 @@
-from resemblyzer import VoiceEncoder, preprocess_wav
 import numpy as np 
 import io
 import librosa
 import streamlit as st
 
+try:
+    from resemblyzer import VoiceEncoder, preprocess_wav
+except ModuleNotFoundError:
+    VoiceEncoder = None
+    preprocess_wav = None
+
+
+def is_voice_recognition_available():
+    return VoiceEncoder is not None and preprocess_wav is not None
+
 
 @st.cache_resource
 def load_voice_encoder():
+    if not is_voice_recognition_available():
+        raise RuntimeError(
+            "Voice recognition requires the optional 'resemblyzer' package."
+        )
     return VoiceEncoder()
 
 
 def get_voice_embedding(audio_bytes):
+    if not is_voice_recognition_available():
+        st.warning(
+            "Voice enrollment is unavailable because 'resemblyzer' is not installed."
+        )
+        return None
+
     try:
         encoder = load_voice_encoder()
 
@@ -18,7 +37,7 @@ def get_voice_embedding(audio_bytes):
         wav = preprocess_wav(audio)
         embedding = encoder.embed_utterance(wav)
         return embedding.tolist()
-    except Exception as e:
+    except Exception:
         st.error('Voice recog error')
         return None
     
@@ -45,6 +64,12 @@ def identify_speaker(new_embedding, candidates_dict, threshold=0.65):
 
 
 def process_bulk_audio(audio_bytes, candidates_dict, threshold=0.65):
+    if not is_voice_recognition_available():
+        st.error(
+            "Voice attendance is unavailable because 'resemblyzer' is not installed. "
+            "Install it with: python -m pip install resemblyzer"
+        )
+        return {}
 
     try:
         encoder = load_voice_encoder()
@@ -71,6 +96,6 @@ def process_bulk_audio(audio_bytes, candidates_dict, threshold=0.65):
                     identified_results[sid] = score
 
         return identified_results
-    except Exception as e:
+    except Exception:
         st.error('Bulk process error')
         return {}

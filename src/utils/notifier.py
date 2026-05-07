@@ -2,21 +2,25 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import threading
-import os
-import streamlit as st
+from src.utils.secrets import get_secret
 
 # ⚠️ Yahan apni project ki nayi Gmail ID aur "App Password" daalein
-SENDER_EMAIL = st.secrets["SENDER_EMAIL"]
-SENDER_PASSWORD = st.secrets["SENDER_PASSWORD"]
+def _email_credentials():
+    return get_secret("SENDER_EMAIL"), get_secret("SENDER_PASSWORD")
 
 # --- STUDENT ATTENDANCE EMAILS (Purana code, same rahega) ---
 
 
 def send_single_email(student_email, student_name, subject_name, is_present, date):
+    sender_email, sender_password = _email_credentials()
+    if not sender_email or not sender_password:
+        print("Email skipped: SENDER_EMAIL or SENDER_PASSWORD is missing.")
+        return
+
     status = "PRESENT ✅" if is_present else "ABSENT ❌"
 
     msg = MIMEMultipart()
-    msg["From"] = SENDER_EMAIL
+    msg["From"] = sender_email
     msg["To"] = student_email
     msg["Subject"] = f"Attendance Update: {subject_name} - {status}"
 
@@ -35,7 +39,7 @@ def send_single_email(student_email, student_name, subject_name, is_present, dat
     try:
         server = smtplib.SMTP("smtp.gmail.com", 587)
         server.starttls()
-        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        server.login(sender_email, sender_password)
         server.send_message(msg)
         server.quit()
     except Exception as e:
@@ -67,8 +71,13 @@ def notify_students_bg(attendance_results, subject_name, date_str):
 
 
 def send_teacher_credentials_email(target_email, teacher_name, username, password):
+    sender_email, sender_password = _email_credentials()
+    if not sender_email or not sender_password:
+        print("Teacher credential email skipped: email secrets are missing.")
+        return False
+
     msg = MIMEMultipart()
-    msg["From"] = SENDER_EMAIL
+    msg["From"] = sender_email
     msg["To"] = target_email
     msg["Subject"] = "🔐 Welcome to Sageathon - Your Teacher Account Details"
 
@@ -106,7 +115,7 @@ def send_teacher_credentials_email(target_email, teacher_name, username, passwor
         try:
             server = smtplib.SMTP("smtp.gmail.com", 587)
             server.starttls()
-            server.login(SENDER_EMAIL, SENDER_PASSWORD)
+            server.login(sender_email, sender_password)
             server.send_message(msg)
             server.quit()
             print(f"Credentials successfully sent to {target_email}")

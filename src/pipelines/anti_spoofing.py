@@ -4,20 +4,24 @@ import onnxruntime as ort
 import streamlit as st
 import gc
 import os
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 @st.cache_resource
 def load_antispoof_model():
     model_path = os.path.join("src", "models", "antispoof.onnx")
     if not os.path.exists(model_path):
-        print(f"⚠️ Model file not found at {model_path}")
+        logger.warning("Anti-spoof model file not found at %s", model_path)
         return None
     try:
         session = ort.InferenceSession(model_path, providers=["CPUExecutionProvider"])
-        print("✅ Anti-Spoof Model Loaded!")
+        logger.info("Anti-spoof model loaded")
         return session
     except Exception as e:
-        print(f"❌ Model load error: {e}")
+        logger.exception("Anti-spoof model load error: %s", e)
         return None
 
 
@@ -103,16 +107,21 @@ def check_liveness(face_crop_rgb, bbox=None, full_image_rgb=None):
         real_score  = float(probs[2])
         fake_screen = float(probs[0])
 
-        print(f"[AI Liveness] Real: {real_score*100:.1f}% | Paper: {fake_paper*100:.1f}% | Screen: {fake_screen*100:.1f}%")
+        logger.info(
+            "[AI Liveness] Real: %.1f%% | Paper: %.1f%% | Screen: %.1f%%",
+            real_score * 100,
+            fake_paper * 100,
+            fake_screen * 100,
+        )
 
         threshold = 0.50 # Testing ke liye thoda low rakha hai
         is_real = real_score >= threshold
-        print(f"[AI Liveness] → {'✅ REAL' if is_real else '❌ FAKE'}")
+        logger.info("[AI Liveness] %s", "REAL" if is_real else "FAKE")
 
         return is_real
 
     except Exception as e:
-        print(f"[Liveness Error]: {e}")
+        logger.exception("[Liveness Error]: %s", e)
         return False
     finally:
         del face_resized, face_tensor

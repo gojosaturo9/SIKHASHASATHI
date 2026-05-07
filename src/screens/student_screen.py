@@ -26,6 +26,7 @@ import time
 
 from src.components.dialog_enroll import enroll_dialog
 from src.components.subject_card import subject_card
+from src.components.chatbot import role_chatbot
 
 
 def student_dashboard():
@@ -45,14 +46,38 @@ def student_dashboard():
 
     st.space()
 
+    if "current_student_tab" not in st.session_state:
+        st.session_state.current_student_tab = "subjects"
+
+    tab1, tab2 = st.columns(2)
+    with tab1:
+        tab_type = (
+            "primary" if st.session_state.current_student_tab == "subjects" else "tertiary"
+        )
+        if st.button("My Subjects", type=tab_type, width="stretch"):
+            st.session_state.current_student_tab = "subjects"
+            st.rerun()
+    with tab2:
+        tab_type = (
+            "primary" if st.session_state.current_student_tab == "chatbot" else "tertiary"
+        )
+        if st.button("Chatbot", type=tab_type, width="stretch", icon=":material/chat:"):
+            st.session_state.current_student_tab = "chatbot"
+            st.rerun()
+
+    st.divider()
+
+    if st.session_state.current_student_tab == "chatbot":
+        role_chatbot("student")
+        footer_dashboard()
+        return
+
     c1, c2 = st.columns(2)
     with c1:
         st.header("Your Enrolled Subjects")
     with c2:
         if st.button("Enroll in Subject", type="primary", width="stretch"):
             enroll_dialog()
-
-    st.divider()
 
     with st.spinner("Loading your enrolled subjects.."):
         subjects = get_student_subjects(student_id)

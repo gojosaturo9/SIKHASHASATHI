@@ -2,13 +2,24 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 
-from src.pipelines.voice_pipeline import process_bulk_audio
+from src.pipelines.voice_pipeline import (
+    is_voice_recognition_available,
+    process_bulk_audio,
+)
 from src.database.config import supabase
 from src.components.dialog_attendance_results import show_attendance_result
 
 @st.dialog('Voice Attendance')
 def voice_attendance_dialog(selected_subject_id):
     st.write('Record audio of students saying "I am present". Then AI will recognize the students.')
+
+    if not is_voice_recognition_available():
+        st.error(
+            "Voice attendance needs the optional 'resemblyzer' package. "
+            "The rest of the dashboard and Voice-RAG chatbot can still run."
+        )
+        st.code("python -m pip install resemblyzer", language="powershell")
+        return
 
     # Audio input widget
     audio_data = st.audio_input("Record classroom audio")

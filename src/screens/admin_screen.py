@@ -5,6 +5,7 @@ import string
 import bcrypt  # 🚀 Password hash karne ke liye
 from src.database.config import supabase
 from src.database.db import get_all_attendance_records
+from src.components.chatbot import role_chatbot
 
 # 🚀 FIX: Naya email function import kiya
 from src.utils.notifier import send_teacher_credentials_email
@@ -110,6 +111,9 @@ def admin_dashboard():
         add_teacher_tab()  # 🚀 FIX: Naya function call kiya
     with tab2:
         attendance_analytics_tab()
+
+    st.divider()
+    role_chatbot("admin")
 
     footer_dashboard()
 
