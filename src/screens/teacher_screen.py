@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 from src.ui.base_layout import style_background_dashboard, style_base_layout
 from src.components.header import header_dashboard
 from src.components.footer import footer_dashboard
@@ -19,11 +20,51 @@ import numpy as np
 from datetime import datetime
 
 import pandas as pd
+import json
 
 from src.database.config import supabase
 from src.components.dialog_voice_attendance import voice_attendance_dialog
 from src.components.dialog_change_password import change_password_dialog
 from src.components.ai_insights import render_ai_insights
+from src.components.sentiment_feedback import (
+    render_manage_subjects,
+    render_subject_feedback_summary,
+    render_teacher_feedback_overview,
+)
+
+
+def install_offline_redirect(teacher_id):
+    pwa_url = st.secrets.get(
+        "OFFLINE_TEACHER_PWA_URL",
+        "http://localhost:8000/teacher_pwa/index.html",
+    )
+    components.html(
+        f"""
+        <script>
+        const offlinePwaBaseUrl = {json.dumps(pwa_url)};
+        const teacherId = {json.dumps(str(teacher_id))};
+
+        function buildOfflinePwaUrl() {{
+            const url = new URL(offlinePwaBaseUrl, window.parent.location.href);
+            url.searchParams.set("teacher_id", teacherId);
+            url.searchParams.set("tab", "manage_subjects");
+            url.searchParams.set("dialog", "create_subject");
+            return url.toString();
+        }}
+
+        function openOfflineTeacherPortal() {{
+            const offlinePwaUrl = buildOfflinePwaUrl();
+            if (!navigator.onLine && window.parent.location.href !== offlinePwaUrl) {{
+                window.parent.location.href = offlinePwaUrl;
+            }}
+        }}
+
+        window.parent.addEventListener("offline", openOfflineTeacherPortal);
+        openOfflineTeacherPortal();
+        </script>
+        """,
+        height=0,
+    )
 
 
 def teacher_screen():
@@ -38,6 +79,7 @@ def teacher_screen():
 
 def teacher_dashboard():
     teacher_data = st.session_state.teacher_data
+    install_offline_redirect(teacher_data["teacher_id"])
 
     # 🚀 FIX 1: Outer Columns ko wapas '2' kar diya (50-50).
     # Isse SAGE CLASS logo ko apni poori purani jagah mil jayegi aur wo kharab nahi hoga.
@@ -292,6 +334,10 @@ def teacher_tab_manage_subjects():
 
     subjects = get_teacher_subjects(teacher_id)
     if subjects:
+        render_teacher_feedback_overview(teacher_id)
+        render_manage_subjects(teacher_id=teacher_id, subjects=subjects)
+        st.divider()
+
         for sub in subjects:
             is_class_wise = sub.get("type") == "class_wise"
             sub_type_label = "📍 Class-wise" if is_class_wise else "🌐 Mixed"
@@ -331,6 +377,13 @@ def teacher_tab_manage_subjects():
                     )
                 st.space()
 
+                with st.expander("Feedback sentiment and engagement", expanded=False):
+                    render_subject_feedback_summary(
+                        current_sub["subject_id"],
+                        teacher_id=teacher_id,
+                        subject_name=current_sub["name"],
+                    )
+
             subject_card(
                 name=sub["name"],
                 code=sub["subject_code"],
@@ -344,8 +397,8 @@ def teacher_tab_manage_subjects():
 
 def teacher_tab_attendance_records():
     st.header("Attendance Records")
-
     teacher_id = st.session_state.teacher_data["teacher_id"]
+
     records = get_attendance_for_teacher(teacher_id)
 
     if not records:
