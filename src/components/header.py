@@ -21,7 +21,7 @@ def header_home():
         f"""
         <div class="ss-home-brand">
             <div class="ss-logo-mark">
-                <img src="{logo_src}" alt="TRUEPRESENCE logo" />
+                <img src="{logo_src}" alt="SIKHASHASASATHI logo" />
             </div>
             <div class="ss-eyebrow"><span></span> Professional AI Solution <span></span></div>
             <h1>AI-Powered<br><strong>Attendance</strong><br><em>System</em></h1>
@@ -39,9 +39,9 @@ def header_dashboard():
     st.markdown(
         f"""
         <div class="ss-dashboard-brand">
-            <img src="{logo_src}" alt="TRUEPRESENCE logo" />
+            <img src="{logo_src}" alt="SIKHASHASASATHI logo" />
             <div>
-                <strong>TRUEPRESENCE</strong>
+                <strong>SIKHASHASASATHI</strong>
                 <span>AI Powered Attendance</span>
             </div>
         </div>

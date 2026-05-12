@@ -2,6 +2,7 @@ venv/
 .venv/
 __pycache__/
 *.pyc
+*.log
 streamlit.*.log
 .env
 .vscode/
@@ -17,3 +18,4 @@ __pycache__/
 *.pyc
 .env
 .streamlit/secrets.toml
+SIKHASHASATHI/

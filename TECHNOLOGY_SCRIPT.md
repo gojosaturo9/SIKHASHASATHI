@@ -1,8 +1,8 @@
-# TRUEPRESENCE Technology Script
+# SIKHASHASASATHI Technology Script
 
 ## Project Overview
 
-TRUEPRESENCE is an AI-powered attendance platform built for colleges. It separates Admin, Teacher, and Student roles. Admin manages teachers and analytics, teachers create subjects and mark attendance, and students use live face login to view their attendance.
+SIKHASHASASATHI is an AI-powered attendance platform built for colleges. It separates Admin, Teacher, and Student roles. Admin manages teachers and analytics, teachers create subjects and mark attendance, and students use live face login to view their attendance.
 
 ## Technology Used
 

@@ -22,8 +22,11 @@ def _make_qr_png(join_url):
 @st.dialog("Class Details")
 def share_subject_dialog(subject_name, subject_code):
     app_domain = os.environ.get(
-        "TRUEPRESENCE_APP_URL",
-        os.environ.get("SIKHSHASATHI_APP_URL", "http://localhost:8501"),
+        "SIKHASHASASATHI_APP_URL",
+        os.environ.get(
+            "TRUEPRESENCE_APP_URL",
+            os.environ.get("SIKHSHASATHI_APP_URL", "http://localhost:8501"),
+        ),
     )
     join_url = f"{app_domain}/?join-code={subject_code}"
 

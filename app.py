@@ -6,7 +6,7 @@ import streamlit as st
 def main():
     """Route the Streamlit app to the selected portal and start background services once."""
     st.set_page_config(
-        page_title="TRUEPRESENCE | AI Powered Attendance",
+        page_title="SIKHASHASASATHI | AI Powered Attendance",
         page_icon="src/assets/logo1.png",
         layout="wide",
     )

@@ -8,7 +8,7 @@ def footer_home():
         """
         <div class="ss-footer-note">
             <span>Created with Apex Coders.</span>
-            <span>Copyright 2026 TRUEPRESENCE</span>
+            <span>Copyright 2026 SIKHASHASASATHI</span>
         </div>
         """,
         unsafe_allow_html=True,
@@ -22,7 +22,7 @@ def footer_dashboard():
         """
         <div class="ss-footer-note ss-footer-dashboard">
             <span>Created with Apex Coders.</span>
-            <span>Copyright 2026 TRUEPRESENCE</span>
+            <span>Copyright 2026 SIKHASHASASATHI</span>
         </div>
         """,
         unsafe_allow_html=True,

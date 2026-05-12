@@ -1,38 +1,54 @@
-<<<<<<< HEAD
-# TRUEPRESENCE - AI-Powered Attendance Platform
+---
+title: SIKHASHASASATHI
+sdk: docker
+app_port: 7860
+---
 
-TRUEPRESENCE is a Streamlit-based attendance management system that uses face recognition, liveness checks, Supabase-backed records, role-based dashboards, and AI-assisted insights to reduce manual attendance work and proxy attendance risk.
+# SIKHASHASASATHI - AI-Powered Attendance Platform
 
-The project is built as a practical college attendance platform with separate portals for administrators, teachers, and students.
+SIKHASHASASATHI is an AI-powered attendance management platform built for colleges and coaching institutes. It combines face recognition, liveness verification, role-based dashboards, Supabase cloud storage, automated reports, email notifications, and AI-assisted insights in one Streamlit application.
 
-## Features
+The goal of the project is to reduce manual attendance work, make attendance records easier to manage, and reduce proxy attendance through live biometric verification.
 
-- Role-based portals for Admin, Teacher, and Student users
-- Face recognition attendance using dlib face embeddings
-- Anti-spoofing and liveness verification using an ONNX model
-- Blink-based verification flow for stronger live-user checks
+## Live Demo
+
+Add these links after deployment:
+
+```text
+Live App: <your-deployed-app-link>
+GitHub: <your-github-repository-link>
+Demo Video: <your-demo-video-link>
+```
+
+## Key Features
+
+- Admin, Teacher, and Student portals
+- Face recognition attendance using dlib embeddings
+- Anti-spoofing verification using an ONNX model
+- Blink/liveness challenge to reduce photo-based proxy attendance
 - Student registration with face and voice profile support
 - Teacher subject management and attendance capture
-- Student attendance dashboard with subject-wise summaries
-- Admin tools for managing teachers, students, records, and announcements
-- Supabase PostgreSQL backend with Row Level Security policy scripts
+- Student dashboard with attendance percentage and subject-wise records
+- Admin dashboard for managing teachers, students, records, and announcements
+- Supabase PostgreSQL backend with RLS policy scripts
 - AI insights and voice/RAG chatbot support
 - Attendance reports, feedback handling, and email notifications
-- Streamlit UI with custom dark theme styling
+- Custom Streamlit UI with dark dashboard styling
 
 ## Tech Stack
 
-| Layer | Technology |
+| Area | Technology |
 | --- | --- |
-| Frontend / App UI | Streamlit |
+| App Framework | Streamlit |
 | Language | Python |
-| Database / Backend | Supabase PostgreSQL |
+| Database | Supabase PostgreSQL |
 | Face Recognition | dlib, face-recognition models, scikit-learn |
 | Anti-Spoofing | ONNX Runtime |
 | Image Processing | OpenCV, Pillow, NumPy |
 | Voice / Audio | librosa, soundfile, Torch |
 | AI Features | Google Generative AI |
-| Reports / Data | pandas |
+| Data and Reports | pandas |
+| Deployment | Docker, Hugging Face Spaces / Render |
 
 ## Project Structure
 
@@ -40,6 +56,8 @@ The project is built as a practical college attendance platform with separate po
 AI-powered-attendance-platform/
 +-- app.py
 +-- requirements.txt
++-- Dockerfile
++-- README.md
 +-- PROJECT_GUIDE.md
 +-- TECHNOLOGY_SCRIPT.md
 +-- supabase_*_migration.sql
@@ -57,12 +75,12 @@ AI-powered-attendance-platform/
 
 ## Main Modules
 
-- `app.py` routes users between the home page, teacher portal, student portal, and admin dashboard.
-- `src/screens/` contains the Admin, Teacher, Student, and Home UI screens.
+- `app.py` routes users to the home page, teacher portal, student portal, and admin dashboard.
+- `src/screens/` contains Admin, Teacher, Student, and Home screens.
 - `src/pipelines/face_pipeline.py` handles face detection, embeddings, recognition, and attendance prediction.
-- `src/pipelines/anti_spoofing_pipeline.py` runs anti-spoofing checks using the ONNX model.
+- `src/pipelines/anti_spoofing_pipeline.py` runs ONNX-based anti-spoofing checks.
 - `src/database/` manages Supabase configuration and database operations.
-- `src/components/` contains reusable Streamlit UI dialogs and dashboard components.
+- `src/components/` contains reusable Streamlit dialogs and UI components.
 - `src/voice_rag/` contains the voice assistant and retrieval-based chatbot flow.
 
 ## Local Setup
@@ -74,21 +92,17 @@ git clone <your-repository-url>
 cd AI-powered-attendance-platform
 ```
 
-### 2. Create a virtual environment
+### 2. Create and activate a virtual environment
 
 ```bash
 python -m venv .venv
-```
-
-Activate it:
-
-```bash
 .venv\Scripts\activate
 ```
 
 For macOS/Linux:
 
 ```bash
+python -m venv .venv
 source .venv/bin/activate
 ```
 
@@ -98,17 +112,17 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-If `dlib` installation fails on Windows, install Visual Studio Build Tools or use a Python version compatible with available prebuilt wheels.
+If `dlib` installation fails on Windows, install Visual Studio Build Tools or use a Python version that supports available prebuilt wheels.
 
 ### 4. Configure secrets
 
-Create this file:
+Create:
 
 ```text
 .streamlit/secrets.toml
 ```
 
-Add your local credentials:
+Add:
 
 ```toml
 SUPABASE_URL = "https://your-project.supabase.co"
@@ -120,13 +134,14 @@ SENDER_EMAIL = "your-email@example.com"
 SENDER_PASSWORD = "your-email-app-password"
 
 GOOGLE_API_KEY = "your-google-generative-ai-key"
+SIKHASHASASATHI_APP_URL = "https://your-deployed-app-link"
 ```
 
 Do not commit `.streamlit/secrets.toml` to GitHub.
 
 ### 5. Set up Supabase
 
-Create a Supabase project and run the SQL files from this repository in the Supabase SQL Editor:
+Create a Supabase project and run these SQL files in the Supabase SQL Editor:
 
 ```text
 supabase_email_automation_migration.sql
@@ -136,50 +151,87 @@ supabase_student_registration_rls.sql
 supabase_zero_trust_migration.sql
 ```
 
-Run the migration files carefully and confirm that the required tables, policies, and permissions are created before using the app.
+Then copy your Supabase project URL, anon key, and service role key into your deployment secrets.
 
-### 6. Run the app
+### 6. Run locally
 
 ```bash
 streamlit run app.py
 ```
 
-The app should open at:
+Local URL:
 
 ```text
 http://localhost:8501
 ```
 
-## Deployment
+## Free Deployment Recommendation
 
-This project can be deployed as a Streamlit app, but because it uses heavier computer vision dependencies such as `dlib`, OpenCV, ONNX Runtime, and Torch-related libraries, a Docker-based host is recommended for a more reliable deployment.
+For this project, the best free deployment target is:
 
-Recommended platforms:
-
-- Render
-- Railway
-- Hugging Face Spaces with Docker
-- Any VPS or cloud VM with Docker support
-
-Basic production command:
-
-```bash
-streamlit run app.py --server.port=8501 --server.address=0.0.0.0
+```text
+Hugging Face Spaces with Docker
 ```
 
-On the deployment platform, add the same secrets used locally as environment variables or platform secrets.
+Reason: this app has heavier ML dependencies such as `dlib`, OpenCV, ONNX Runtime, and Torch/audio packages. Streamlit Community Cloud is simpler, but it may fail because of memory or dependency limits. Hugging Face Spaces is better suited for AI/ML portfolio demos.
+
+## Deploy on Hugging Face Spaces
+
+1. Push this project to GitHub.
+2. Go to `https://huggingface.co/spaces`.
+3. Click `Create new Space`.
+4. Use these settings:
+
+```text
+Space name: sikhashasasathi
+SDK: Docker
+Hardware: CPU Basic
+Visibility: Public
+```
+
+5. Upload or push this project to the Hugging Face Space repository.
+6. In the Space settings, add these secrets:
+
+```text
+SUPABASE_URL
+SUPABASE_KEY
+SUPABASE_SERVICE_ROLE_KEY
+ADMIN_PASSWORD
+SENDER_EMAIL
+SENDER_PASSWORD
+GOOGLE_API_KEY
+SIKHASHASASATHI_APP_URL
+```
+
+7. Wait for the Docker build to finish.
+8. Open the live Space URL and test Admin, Teacher, and Student flows.
+
+## Docker Run Command
+
+The included Dockerfile starts the app using:
+
+```bash
+streamlit run app.py --server.port=${PORT:-7860} --server.address=0.0.0.0
+```
+
+For local Docker testing:
+
+```bash
+docker build -t sikhashasasathi .
+docker run -p 7860:7860 --env-file .env sikhashasasathi
+```
 
 ## Security Notes
 
-- Store secrets only in `.streamlit/secrets.toml` locally or in the hosting provider's secret manager.
-- Never commit Supabase keys, email passwords, or API keys.
-- Use the Supabase service role key only on trusted server-side deployments.
-- Review the included RLS policy SQL files before deploying with real student data.
-- Biometric data should be handled carefully and only with proper user consent.
+- Never commit `.streamlit/secrets.toml`, `.env`, Supabase keys, email passwords, or API keys.
+- Use Supabase service role keys only in trusted server-side deployments.
+- Review Supabase RLS policies before deploying with real student data.
+- Get proper user consent before collecting or processing biometric data.
+- Use demo data when sharing the app publicly with recruiters.
 
 ## Resume Highlights
 
-**Project:** TRUEPRESENCE - AI-Powered Attendance Platform
+**Project:** SIKHASHASASATHI - AI-Powered Attendance Platform
 
 Suggested resume points:
 
@@ -191,17 +243,12 @@ Suggested resume points:
 
 ## Future Improvements
 
-- Add Dockerfile and CI deployment workflow
-- Add automated unit and integration tests
-- Add screenshots and a live demo link
-- Add CSV/PDF export options for attendance reports
-- Improve biometric consent and privacy documentation
-- Add production monitoring and structured logs
+- Add automated tests for database and attendance flows
+- Add screenshots and a demo video
+- Add PDF export for attendance reports
+- Add Docker image publishing through GitHub Actions
+- Improve biometric privacy and consent documentation
 
 ## License
 
 This project is intended for academic, portfolio, and learning purposes. Add a license before using it in production or distributing it publicly.
-=======
-# chatbot
-for ai chat bot
->>>>>>> 1a21d617c178140330836d50b61117f23b3c2a1b

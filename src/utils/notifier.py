@@ -175,7 +175,7 @@ Your attendance for "{subject_name}" has been marked on {date}.
 Status: {status}
 
 Regards,
-TRUEPRESENCE AI Attendance System
+SIKHASHASASATHI AI Attendance System
 """
 
     return _send_message(
@@ -296,7 +296,7 @@ Total classes: {total_days}
 Please contact your teacher and improve attendance.
 
 Regards,
-TRUEPRESENCE AI Attendance System
+SIKHASHASASATHI AI Attendance System
 """
 
     return _send_message(
@@ -396,12 +396,12 @@ Enrollment No.: {enrollment_no}
 You can now use face scan login and attendance features.
 
 Regards,
-TRUEPRESENCE AI Attendance System
+SIKHASHASASATHI AI Attendance System
 """
 
     return _send_message(
         to_email=student_email,
-        subject="Registration Complete - TRUEPRESENCE AI Attendance",
+        subject="Registration Complete - SIKHASHASASATHI AI Attendance",
         body=body,
     )
 
@@ -457,12 +457,12 @@ Password: {password}
 Please log in and change your password.
 
 Regards,
-TRUEPRESENCE Admin Team
+SIKHASHASASATHI Admin Team
 """
 
     return _send_message(
         to_email=target_email,
-        subject="Teacher Account Details - TRUEPRESENCE",
+        subject="Teacher Account Details - SIKHASHASASATHI",
         body=body,
     )
 

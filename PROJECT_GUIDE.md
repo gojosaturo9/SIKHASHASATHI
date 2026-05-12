@@ -1,6 +1,6 @@
-# TRUEPRESENCE | Project Guide & Interview Preparation
+# SIKHASHASASATHI | Project Guide & Interview Preparation
 
-This document provides a comprehensive overview of the technologies used in the **TRUEPRESENCE** AI-powered attendance platform, their implementation, and a guide for interviews and error management.
+This document provides a comprehensive overview of the technologies used in the **SIKHASHASASATHI** AI-powered attendance platform, their implementation, and a guide for interviews and error management.
 
 ---
 
@@ -35,7 +35,7 @@ This document provides a comprehensive overview of the technologies used in the 
 
 ## 🎤 PPT Script / Presentation Flow
 
-1.  **Slide 1: Introduction:** "Welcome to **TRUEPRESENCE**, an AI-driven solution to the manual attendance problem in colleges."
+1.  **Slide 1: Introduction:** "Welcome to **SIKHASHASASATHI**, an AI-driven solution to the manual attendance problem in colleges."
 2.  **Slide 2: The Problem:** "Manual registers are slow, prone to 'proxy' attendance, and hard to digitize."
 3.  **Slide 3: The Solution (AI):** "We use a 4-layer verification system: Metadata check, Face Liveness, Roster Validation, and a two-step Blink Challenge for students."
 4.  **Slide 4: Technology:** "Built on Python and Streamlit for speed, Supabase for cloud data, and dlib for biometric accuracy."
@@ -90,4 +90,4 @@ This document provides a comprehensive overview of the technologies used in the 
     *   **Fix:** Force column types using `.astype(str)` or ensure data consistency before passing DataFrames to `st.dataframe`.
 
 ---
-*Created for the **TRUEPRESENCE** Project - 2026*
+*Created for the **SIKHASHASASATHI** Project - 2026*
