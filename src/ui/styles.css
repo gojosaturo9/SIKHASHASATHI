@@ -1,0 +1,760 @@
+/* ==========================================================================
+   TRUEPRESENCE UI Stylesheet
+   Main font: Inter
+   Accent color: Electric Cyan (#00E5E5)
+   Base theme: Dark mode
+   Layout: Bento grid cards with glassmorphism overlays
+   Navigation: Bottom-friendly spacing and large touch targets
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Global Theme Tokens
+   Used by: Student, Teacher, Admin, Home
+   Edit these CSS variables first for fast manual theme changes.
+   -------------------------------------------------------------------------- */
+:root {
+    --ss-bg: #050607;
+    --ss-bg-deep: #020303;
+    --ss-accent: #00E5E5;
+    --ss-cyan: #00E5E5;
+    --ss-accent-glow: rgba(0, 229, 229, 0.34);
+    --ss-surface: rgba(17, 23, 28, 0.74);
+    --ss-surface-solid: #12181d;
+    --ss-card: rgba(16, 22, 27, 0.68);
+    --ss-text: #f5fbfb;
+    --ss-muted: #a6b7bd;
+    --ss-border: rgba(0, 229, 229, 0.18);
+    --ss-glass: rgba(16, 22, 27, 0.7);
+    --ss-shadow: 0 22px 70px rgba(0, 0, 0, 0.34);
+    --ss-font-display: 'Inter', sans-serif;
+    --ss-font-body: 'Inter', sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   2. Streamlit Shell
+   Used by: All sections
+   Hides default Streamlit chrome and sets dark app typography.
+   -------------------------------------------------------------------------- */
+header,
+footer,
+#MainMenu {
+    visibility: hidden;
+    height: 0;
+}
+
+html,
+body,
+.stApp,
+[data-testid="stAppViewContainer"] {
+    color: var(--ss-text) !important;
+    font-family: var(--ss-font-body) !important;
+    scroll-behavior: smooth;
+}
+
+body {
+    background:
+        radial-gradient(circle at 18% 8%, rgba(0, 229, 229, 0.14), transparent 30%),
+        linear-gradient(145deg, #050607 0%, #0b0f12 50%, #101418 100%);
+}
+
+.style-reference {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 5rem;
+}
+
+.style-reference > section,
+.style-reference > article {
+    margin-bottom: 1.5rem;
+}
+
+[data-testid="stHeader"] {
+    background: transparent !important;
+}
+
+.block-container {
+    max-width: 1100px;
+    padding: 2.5rem 1.5rem 7.5rem !important;
+}
+
+div[data-testid="column"] {
+    min-width: 0;
+}
+
+/* --------------------------------------------------------------------------
+   3. Typography
+   Used by: Home hero, Student dashboard, Teacher dashboard, Admin dashboard
+   Headings are Inter Bold; body text is Inter Regular/Medium.
+   -------------------------------------------------------------------------- */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--ss-font-display) !important;
+    font-weight: 800 !important;
+    letter-spacing: 0 !important;
+}
+
+h1 {
+    color: var(--ss-text) !important;
+    font-size: 3.7rem !important;
+    line-height: 1.1 !important;
+    margin-bottom: 1rem !important;
+}
+
+h2 {
+    color: var(--ss-text) !important;
+    font-size: 2.1rem !important;
+    margin-bottom: 1rem !important;
+}
+
+h3,
+.stMarkdown h3 {
+    color: var(--ss-text) !important;
+    font-size: 1.4rem !important;
+    font-weight: 700 !important;
+}
+
+p,
+.stMarkdown p,
+label,
+[data-testid="stMarkdownContainer"] {
+    color: var(--ss-muted);
+    line-height: 1.6;
+}
+
+/* --------------------------------------------------------------------------
+   4. Buttons And Bottom-Friendly Navigation
+   Used by: Home portal buttons, Teacher tab buttons, Admin logout,
+   Student logout, dialog action buttons.
+   -------------------------------------------------------------------------- */
+.stButton > button,
+.stFormSubmitButton > button {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)) !important;
+    border: 1px solid var(--ss-border) !important;
+    border-radius: 6px !important;
+    color: var(--ss-text) !important;
+    min-height: 48px !important;
+    padding: 0.85rem 1.5rem !important;
+    font-family: var(--ss-font-body) !important;
+    font-weight: 600 !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.24) !important;
+    transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease !important;
+}
+
+.stButton > button:hover {
+    background: rgba(0, 229, 229, 0.11) !important;
+    border-color: rgba(0, 229, 229, 0.5) !important;
+    box-shadow: 0 14px 34px rgba(0, 229, 229, 0.12) !important;
+    transform: translateY(-1px);
+}
+
+.stButton > button[kind="primary"],
+.stFormSubmitButton > button[kind="primary"] {
+    background: linear-gradient(135deg, var(--ss-accent), #67ffff) !important;
+    border: none !important;
+    color: #001313 !important;
+    box-shadow: 0 16px 38px rgba(0, 229, 229, 0.22) !important;
+}
+
+.stButton > button[kind="primary"]:hover {
+    background: linear-gradient(135deg, #67ffff, var(--ss-accent)) !important;
+    box-shadow: 0 18px 44px rgba(0, 229, 229, 0.3) !important;
+}
+
+/* --------------------------------------------------------------------------
+   5. Forms, Inputs, Tables, Expanders
+   Used by: Login screens, Student profile, Teacher subject forms,
+   Admin create teacher/student forms, broadcast panel.
+   -------------------------------------------------------------------------- */
+.stTextInput input,
+.stSelectbox div[data-baseweb="select"] > div,
+.stMultiSelect div[data-baseweb="select"] > div,
+textarea {
+    background: rgba(6, 10, 12, 0.72) !important;
+    border: 1px solid var(--ss-border) !important;
+    border-radius: 6px !important;
+    color: var(--ss-text) !important;
+    backdrop-filter: blur(18px);
+}
+
+div[data-testid="stForm"],
+div[data-testid="stExpander"] {
+    background: var(--ss-glass) !important;
+    border: 1px solid var(--ss-border) !important;
+    border-radius: 8px !important;
+    box-shadow: var(--ss-shadow) !important;
+    backdrop-filter: blur(18px);
+}
+
+[data-testid="stMetric"] {
+    background: var(--ss-surface) !important;
+    border: 1px solid var(--ss-border) !important;
+    border-radius: 8px !important;
+    box-shadow: var(--ss-shadow) !important;
+    backdrop-filter: blur(12px);
+}
+
+/* --------------------------------------------------------------------------
+   6. Shared Dashboard Brand
+   Used by: Student dashboard, Teacher dashboard, login fallback screens.
+   -------------------------------------------------------------------------- */
+.ss-dashboard-brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 2rem;
+}
+
+.ss-dashboard-brand img {
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    box-shadow: none;
+}
+
+.ss-dashboard-brand strong {
+    font-family: var(--ss-font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: 0;
+}
+
+.ss-dashboard-brand span {
+    display: block;
+    color: var(--ss-muted);
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+
+/* --------------------------------------------------------------------------
+   7. Home Section
+   Used by: src/screens/home_screen.py
+   Elements: .ss-home-brand, .ss-logo-mark, .ss-portal-card,
+   .ss-card-list, .ss-value-strip, .ss-admin-panel.
+   -------------------------------------------------------------------------- */
+.ss-home-brand {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    margin: 0 auto 2.4rem;
+    text-align: center;
+}
+
+.ss-logo-mark {
+    display: grid;
+    width: 74px;
+    height: 74px;
+    place-items: center;
+    margin: 0 auto 1.15rem;
+    border: 1px solid var(--ss-border);
+    border-radius: 8px;
+    background: var(--ss-glass);
+    box-shadow: var(--ss-shadow);
+    backdrop-filter: blur(18px);
+}
+
+.ss-logo-mark img {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+}
+
+.ss-eyebrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-bottom: 1.15rem;
+    color: var(--ss-accent);
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.ss-eyebrow span {
+    width: 40px;
+    height: 1px;
+    background: var(--ss-accent);
+}
+
+.ss-home-brand h1 {
+    margin: 0 !important;
+}
+
+.ss-home-brand h1 strong {
+    color: var(--ss-accent);
+}
+
+.ss-home-brand h1 em {
+    color: var(--ss-text);
+    font-style: normal;
+}
+
+.ss-home-brand p {
+    max-width: 620px;
+    margin: 1.25rem auto 0 !important;
+    color: var(--ss-muted) !important;
+    font-size: 1rem !important;
+    line-height: 1.75;
+}
+
+.ss-portal-card {
+    position: relative;
+    overflow: hidden;
+    min-height: 274px;
+    padding: 1.75rem;
+    border: 1px solid var(--ss-border);
+    border-radius: 8px;
+    background: var(--ss-card);
+    text-align: left;
+    box-shadow: var(--ss-shadow);
+    backdrop-filter: blur(18px);
+}
+
+.ss-portal-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--ss-accent), transparent);
+}
+
+.ss-portal-card .ss-card-icon {
+    display: grid;
+    width: 54px;
+    height: 54px;
+    place-items: center;
+    margin-bottom: 1.25rem;
+    border: 1px solid var(--ss-border);
+    border-radius: 8px;
+    background: rgba(0, 229, 229, 0.1);
+    color: var(--ss-accent);
+    font-weight: 900;
+}
+
+.ss-portal-card h3 {
+    margin: 0 0 0.65rem !important;
+    font-size: 1.25rem !important;
+}
+
+.ss-portal-card p {
+    min-height: 4.2rem;
+    margin: 0 0 1.1rem !important;
+    color: var(--ss-muted) !important;
+    font-size: 0.88rem !important;
+    line-height: 1.65;
+}
+
+.ss-card-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin-top: 1.15rem;
+}
+
+.ss-card-list span {
+    padding: 0.28rem 0.55rem;
+    border: 1px solid rgba(0, 229, 229, 0.18);
+    border-radius: 7px;
+    background: rgba(0, 229, 229, 0.07);
+    color: var(--ss-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.ss-value-strip {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8rem;
+    margin: 2.4rem 0;
+    padding: 1.15rem;
+    border-top: 1px solid var(--ss-border);
+    border-bottom: 1px solid var(--ss-border);
+    background: rgba(0, 229, 229, 0.05);
+}
+
+.ss-value-strip span {
+    color: var(--ss-muted);
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.ss-admin-panel {
+    max-width: 560px;
+    margin: 2.1rem auto 0.35rem;
+    padding: 1.35rem 1.45rem;
+    border: 1px solid var(--ss-border);
+    border-radius: 8px;
+    background: var(--ss-card);
+    box-shadow: var(--ss-shadow);
+    backdrop-filter: blur(18px);
+}
+
+.ss-admin-panel h3 {
+    margin: 0 0 0.2rem !important;
+    font-size: 1rem !important;
+}
+
+.ss-admin-panel p {
+    margin: 0 0 0.9rem !important;
+    color: var(--ss-muted) !important;
+    font-size: 0.82rem !important;
+}
+
+.ss-admin-input-wrap {
+    max-width: 560px;
+    margin: 0 auto;
+}
+
+/* --------------------------------------------------------------------------
+   8. Student Section
+   Used by: src/screens/student_screen.py
+   Elements: .ss-welcome-container, .ss-subject-card, subject stats table.
+   -------------------------------------------------------------------------- */
+.ss-welcome-container {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 15px !important;
+    margin-top: -10px !important;
+    margin-bottom: 1.5rem !important;
+    width: 100% !important;
+}
+
+.ss-welcome-container h2 {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 1.8rem !important;
+    white-space: nowrap !important;
+    line-height: 1.2 !important;
+}
+
+.ss-subject-card {
+    position: relative;
+    overflow: hidden;
+    background: var(--ss-card) !important;
+    border: 1px solid var(--ss-border) !important;
+    border-radius: 8px !important;
+    padding: 1.5rem !important;
+    margin-bottom: 1.2rem;
+    box-shadow: var(--ss-shadow);
+    backdrop-filter: blur(18px);
+    transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+.ss-subject-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--ss-accent);
+}
+
+.ss-subject-card:hover {
+    background: rgba(18, 28, 33, 0.82) !important;
+    border-color: var(--ss-accent);
+    transform: translateY(-2px);
+}
+
+.ss-subject-top {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+}
+
+.ss-subject-icon {
+    display: flex;
+    width: 45px;
+    height: 45px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(0, 229, 229, 0.28);
+    border-radius: 6px;
+    background: rgba(0, 229, 229, 0.12);
+    color: var(--ss-accent);
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.ss-subject-top h3 {
+    margin: 0 !important;
+    font-size: 1.2rem !important;
+}
+
+.ss-subject-top p {
+    margin: 0 !important;
+    font-size: 0.85rem !important;
+    opacity: 0.8;
+}
+
+.ss-subject-stats-table {
+    width: 100%;
+    margin-top: 0.5rem;
+    border-collapse: collapse;
+}
+
+.ss-subject-stats-table td {
+    padding: 0.5rem;
+    text-align: center;
+    border: 1px solid rgba(0, 229, 229, 0.1);
+}
+
+.ss-subject-stats-table .stat-value {
+    display: block;
+    color: var(--ss-text);
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.ss-subject-stats-table .stat-label {
+    display: block;
+    color: var(--ss-muted);
+    font-size: 0.7rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+/* --------------------------------------------------------------------------
+   9. Teacher Section
+   Used by: src/screens/teacher_screen.py
+   Teacher mostly uses Streamlit buttons, forms, metrics, images, and tables.
+   Those elements inherit sections 4 and 5.
+   -------------------------------------------------------------------------- */
+
+/* --------------------------------------------------------------------------
+   9.1 Teacher AI Help Chatbot
+   Used by: src/voice_rag/streamlit_ui.py
+   Elements:
+   - .st-key-ai_assistant_launcher: fixed round AI Help launcher on left
+   - .rag-layout: chatbot dialog wrapper
+   - .rag-hero: dialog title/status header
+   - .rag-sidebar: compact controls and quick questions
+   - .rag-main: conversation panel
+   - .rag-answer-card: assistant response bubble
+   -------------------------------------------------------------------------- */
+.st-key-ai_assistant_launcher {
+    position: fixed;
+    left: 1.4rem;
+    bottom: 1.35rem;
+    z-index: 9999;
+}
+
+.st-key-ai_assistant_launcher .stButton > button {
+    display: flex !important;
+    width: 78px !important;
+    height: 78px !important;
+    min-height: 78px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    border: 1px solid rgba(0, 229, 229, 0.46) !important;
+    border-radius: 50% !important;
+    background:
+        radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.22), transparent 28%),
+        linear-gradient(145deg, var(--ss-accent), #06383b) !important;
+    color: #001313 !important;
+    font-size: 0.76rem !important;
+    font-weight: 800 !important;
+    line-height: 1.05 !important;
+    text-align: center !important;
+    white-space: normal !important;
+    box-shadow: 0 16px 42px rgba(0, 229, 229, 0.28), 0 18px 48px rgba(0, 0, 0, 0.45) !important;
+}
+
+.st-key-ai_assistant_launcher .stButton > button:hover {
+    border-color: rgba(103, 255, 255, 0.9) !important;
+    background:
+        radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.28), transparent 28%),
+        linear-gradient(145deg, #67ffff, var(--ss-accent)) !important;
+    box-shadow: 0 18px 50px rgba(0, 229, 229, 0.38), 0 20px 54px rgba(0, 0, 0, 0.45) !important;
+}
+
+.rag-layout {
+    max-width: 1050px;
+    margin: 0 auto;
+    font-family: var(--ss-font-body);
+}
+
+.rag-hero {
+    padding: 0 0 0.75rem;
+    margin-bottom: 0.9rem;
+    border-bottom: 1px solid var(--ss-border);
+    text-align: left;
+}
+
+.rag-kicker {
+    margin-bottom: 0.25rem;
+    color: var(--ss-accent);
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.rag-title {
+    margin: 0 !important;
+    color: var(--ss-text) !important;
+    font-size: 1.65rem !important;
+    font-weight: 800 !important;
+}
+
+.rag-subtitle {
+    margin: 0.25rem 0 0.65rem !important;
+    color: var(--ss-muted) !important;
+    font-size: 0.88rem !important;
+}
+
+.rag-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.rag-chip {
+    padding: 0.28rem 0.55rem;
+    border: 1px solid var(--ss-border);
+    border-radius: 999px;
+    background: rgba(0, 229, 229, 0.07);
+    color: var(--ss-text);
+    font-size: 0.68rem;
+    font-weight: 700;
+}
+
+.rag-chip.ok {
+    border-color: rgba(0, 229, 229, 0.42);
+    color: #cfffff;
+}
+
+.rag-chip.warn {
+    border-color: rgba(255, 175, 64, 0.48);
+    background: rgba(255, 175, 64, 0.1);
+    color: #ffdfad;
+}
+
+.rag-sidebar,
+.rag-main {
+    min-height: 29rem;
+    padding: 0.9rem;
+    border: 1px solid var(--ss-border);
+    border-radius: 8px;
+    background: var(--ss-glass);
+    box-shadow: var(--ss-shadow);
+    backdrop-filter: blur(18px);
+}
+
+.rag-section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 0.55rem;
+    color: var(--ss-text);
+    font-size: 0.82rem;
+    font-weight: 800;
+}
+
+.rag-voice-title {
+    margin-top: 0.8rem !important;
+}
+
+.rag-table-title {
+    margin: 0.55rem 0 0.35rem !important;
+    color: var(--ss-accent);
+}
+
+.rag-empty {
+    display: grid;
+    min-height: 9rem;
+    place-items: center;
+    border: 1px dashed rgba(0, 229, 229, 0.25);
+    border-radius: 8px;
+    color: var(--ss-muted);
+    font-size: 0.88rem;
+}
+
+.rag-answer-card {
+    padding: 0.7rem 0.8rem;
+    border: 1px solid rgba(0, 229, 229, 0.16);
+    border-left: 3px solid var(--ss-accent);
+    border-radius: 8px;
+    background: rgba(0, 229, 229, 0.07);
+    color: var(--ss-text);
+    font-size: 0.9rem;
+    line-height: 1.45;
+}
+
+[data-testid="stChatMessage"] {
+    gap: 0.4rem !important;
+    padding: 0.35rem 0 !important;
+}
+
+[data-testid="stChatMessage"] p {
+    margin-bottom: 0.25rem !important;
+}
+
+/* --------------------------------------------------------------------------
+   10. Admin Section
+   Used by: src/screens/admin_screen.py
+   Admin tabs, analytics tables, metrics, teacher/student forms inherit
+   sections 4 and 5.
+   -------------------------------------------------------------------------- */
+
+/* --------------------------------------------------------------------------
+   11. Footer
+   Used by: Home, Student, Teacher, Admin
+   -------------------------------------------------------------------------- */
+.ss-footer-note {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding: 1.2rem 0 0;
+    color: var(--ss-muted);
+    font-size: 0.78rem;
+}
+
+/* --------------------------------------------------------------------------
+   12. Mobile And Thumb-Friendly Adjustments
+   Used by: All sections on phones/tablets.
+   Keep buttons tall and add bottom space for comfortable navigation.
+   -------------------------------------------------------------------------- */
+@media (max-width: 720px) {
+    .block-container {
+        padding: 1.5rem 1rem 8.5rem !important;
+    }
+
+    h1 {
+        font-size: 2.65rem !important;
+    }
+
+    h2 {
+        font-size: 1.55rem !important;
+    }
+
+    .stButton > button,
+    .stFormSubmitButton > button {
+        min-height: 52px !important;
+    }
+
+    .ss-home-brand {
+        margin-bottom: 1.7rem;
+    }
+
+    .ss-eyebrow span {
+        width: 24px;
+    }
+
+    .ss-portal-card {
+        min-height: auto;
+        padding: 1.35rem;
+    }
+
+    .ss-portal-card p {
+        min-height: auto;
+    }
+}

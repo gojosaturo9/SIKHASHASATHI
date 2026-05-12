@@ -1,0 +1,33 @@
+streamlit
+google-generativeai
+
+#Utilities
+numpy
+pandas
+scipy
+
+#Face-recognistion
+scikit-learn
+joblib
+opencv-python-headless
+kaggle
+dlib-bin
+git+https://github.com/ageitgey/face_recognition_models
+setuptools<70.0.0
+
+
+
+
+supabase==2.10.0
+bcrypt
+onnxruntime
+
+
+segno
+pillow
+
+librosa
+soundfile
+torch
+# Optional: python -m pip install resemblyzer --no-deps
+# The app falls back to soundfile/numpy when resemblyzer/webrtcvad is unavailable.

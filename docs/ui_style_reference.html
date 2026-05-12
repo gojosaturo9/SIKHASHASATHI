@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TRUEPRESENCE UI Style Reference</title>
+
+    <!--
+        This HTML sheet is only a manual reference for developers/designers.
+        The live Streamlit app loads: ../src/ui/styles.css
+        Edit that stylesheet for real UI changes.
+    -->
+    <link rel="stylesheet" href="../src/ui/styles.css">
+</head>
+<body>
+    <!--
+        GLOBAL SECTION
+        Styles applied:
+        - :root theme variables for font, cyan accent, dark background, glass cards
+        - h1/h2/h3 typography
+        - Streamlit shell selectors in styles.css
+    -->
+    <main class="style-reference">
+        <section>
+            <h1>TRUEPRESENCE UI Style Reference</h1>
+            <p>Main font is Inter. Accent color is Electric Cyan (#00E5E5). Theme is dark glassmorphism.</p>
+        </section>
+
+        <!--
+            HOME SECTION
+            Live file: src/screens/home_screen.py
+            Main elements:
+            - .ss-home-brand: hero/logo/title area
+            - .ss-logo-mark: logo container
+            - .ss-portal-card: Student/Teacher bento cards
+            - .ss-card-icon: short role badge inside portal cards
+            - .ss-card-list: small feature chips
+            - .ss-value-strip: feature strip below portal cards
+            - .ss-admin-panel: admin login description panel
+        -->
+        <section class="ss-home-brand">
+            <div class="ss-logo-mark">
+                <img src="../src/assets/logo1.png" alt="TRUEPRESENCE logo">
+            </div>
+            <div class="ss-eyebrow"><span></span> Home Section <span></span></div>
+            <h1>AI-Powered<br><strong>Attendance</strong><br><em>System</em></h1>
+            <p>Home hero, portal bento cards, feature strip, and admin access block.</p>
+        </section>
+
+        <section>
+            <article class="ss-portal-card">
+                <div class="ss-card-icon">ST</div>
+                <h3>Student Portal Card</h3>
+                <p>Uses .ss-portal-card, .ss-card-icon, and .ss-card-list styles.</p>
+                <div class="ss-card-list">
+                    <span>Face login</span>
+                    <span>QR enrollment</span>
+                    <span>Attendance status</span>
+                </div>
+            </article>
+        </section>
+
+        <section class="ss-value-strip">
+            <span>Face Recognition</span>
+            <span>Voice Biometrics</span>
+            <span>QR Enrollment</span>
+            <span>Cloud Records</span>
+        </section>
+
+        <section class="ss-admin-panel">
+            <h3>Administrator Access</h3>
+            <p>Uses .ss-admin-panel styles from the Home Section block in styles.css.</p>
+        </section>
+
+        <!--
+            STUDENT SECTION
+            Live file: src/screens/student_screen.py
+            Main elements:
+            - .ss-dashboard-brand: shared dashboard logo/name
+            - .ss-welcome-container: student welcome heading
+            - .ss-subject-card: subject bento card
+            - .ss-subject-icon: subject badge
+            - .ss-subject-stats-table: attendance stats inside card
+        -->
+        <section class="ss-dashboard-brand">
+            <img src="../src/assets/logo1.png" alt="TRUEPRESENCE logo">
+            <div>
+                <strong>Student Section</strong>
+                <span>Dashboard brand component</span>
+            </div>
+        </section>
+
+        <section class="ss-welcome-container">
+            <h2>Welcome, Student</h2>
+        </section>
+
+        <article class="ss-subject-card">
+            <div class="ss-subject-top">
+                <div class="ss-subject-icon">AI</div>
+                <div>
+                    <h3>Subject Card</h3>
+                    <p>Code CS101 | Section A</p>
+                </div>
+            </div>
+            <table class="ss-subject-stats-table">
+                <tr>
+                    <td><span class="stat-value">20</span><span class="stat-label">Total</span></td>
+                    <td><span class="stat-value">16</span><span class="stat-label">Present</span></td>
+                    <td><span class="stat-value">80%</span><span class="stat-label">Attendance</span></td>
+                </tr>
+            </table>
+        </article>
+
+        <!--
+            TEACHER SECTION
+            Live file: src/screens/teacher_screen.py
+            Main elements:
+            - Uses .ss-dashboard-brand for header
+            - Uses Streamlit button styles for Attendance / Subjects / Records tabs
+            - Uses form/input/table/card rules from styles.css sections 4 and 5
+            - Dialogs inherit button, form, input, and expander rules
+            - AI Help chatbot uses styles.css section 9.1
+            - .st-key-ai_assistant_launcher moves the round AI Help button to left bottom
+            - .rag-layout, .rag-sidebar, .rag-main, .rag-answer-card control chatbot UI
+        -->
+        <section class="ss-dashboard-brand">
+            <img src="../src/assets/logo1.png" alt="TRUEPRESENCE logo">
+            <div>
+                <strong>Teacher Section</strong>
+                <span>Tabs and controls inherit global button/form styles</span>
+            </div>
+        </section>
+
+        <!--
+            TEACHER AI HELP CHATBOT
+            Live file: src/voice_rag/streamlit_ui.py
+            Main styles:
+            - .st-key-ai_assistant_launcher: fixed left round "AI Help" button
+            - .rag-hero: compact chatbot heading/status row
+            - .rag-sidebar: quick prompts and voice mode controls
+            - .rag-main: compact conversation panel
+            - .rag-answer-card: assistant answer bubble
+            - .rag-table-title: label above parsed table result
+            Behavior:
+            - Voice answers stay inside the dialog after Process Audio
+            - Voice answers are rendered as text, spoken audio, and table rows
+            - Close AI Help button clears the persistent open state
+        -->
+        <section class="rag-layout">
+            <div class="rag-hero">
+                <div class="rag-kicker">AI Help</div>
+                <h2 class="rag-title">Teacher AI Help</h2>
+                <p class="rag-subtitle">Ask about classes, subjects, students, and attendance reports.</p>
+                <div class="rag-chip-row">
+                    <span class="rag-chip ok">Attendance context</span>
+                    <span class="rag-chip ok">Voice input</span>
+                    <span class="rag-chip warn">Gemini status</span>
+                </div>
+            </div>
+            <div class="rag-main">
+                <div class="rag-section-title">Conversation</div>
+                <div class="rag-answer-card">AI Help response bubble style. Extra spacing is reduced in styles.css.</div>
+                <div class="rag-section-title rag-table-title">Table view</div>
+                <table class="ss-subject-stats-table">
+                    <tr>
+                        <td><span class="stat-value">Subject</span><span class="stat-label">Item</span></td>
+                        <td><span class="stat-value">80%</span><span class="stat-label">Details</span></td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <!--
+            ADMIN SECTION
+            Live file: src/screens/admin_screen.py
+            Main elements:
+            - Streamlit tabs: Add Teacher, Add Student, Analytics, Broadcast
+            - Metrics inherit [data-testid="stMetric"]
+            - Forms inherit div[data-testid="stForm"]
+            - Inputs inherit .stTextInput and selectbox rules
+        -->
+        <section class="ss-dashboard-brand">
+            <img src="../src/assets/logo1.png" alt="TRUEPRESENCE logo">
+            <div>
+                <strong>Admin Section</strong>
+                <span>Analytics, forms, and broadcast tools use shared global styles</span>
+            </div>
+        </section>
+
+        <!--
+            FOOTER SECTION
+            Live files: src/components/footer.py
+            Main elements:
+            - .ss-footer-note: footer text row
+            - .ss-footer-dashboard: optional dashboard modifier
+        -->
+        <footer class="ss-footer-note">
+            <span>Created with Apex Coders.</span>
+            <span>Copyright 2026 TRUEPRESENCE</span>
+        </footer>
+    </main>
+</body>
+</html>
