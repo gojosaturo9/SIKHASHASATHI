@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # TRUEPRESENCE - AI-Powered Attendance Platform
 
 TRUEPRESENCE is a Streamlit-based attendance management system that uses face recognition, liveness checks, Supabase-backed records, role-based dashboards, and AI-assisted insights to reduce manual attendance work and proxy attendance risk.
@@ -200,3 +201,7 @@ Suggested resume points:
 ## License
 
 This project is intended for academic, portfolio, and learning purposes. Add a license before using it in production or distributing it publicly.
+=======
+# chatbot
+for ai chat bot
+>>>>>>> 1a21d617c178140330836d50b61117f23b3c2a1b
